@@ -18,7 +18,10 @@
     "strict": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
-    "noFallthroughCasesInSwitch": true
+    "noFallthroughCasesInSwitch": true,
+    
+    /* Add type checking for JSX */
+    "types": ["react", "react-dom", "leaflet", "vitest/globals", "@testing-library/jest-dom"]
   },
   "include": ["src"]
 }

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback, useRef } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, useMapEvents, useMap } from 'react-leaflet';
 import { Icon, LatLngTuple } from 'leaflet';
 import { Navigation, Plus, MapPin, Star } from 'lucide-react';
@@ -6,47 +6,10 @@ import { supabase, Report, getActiveReports } from '../supabaseClient';
 import { ReportModal } from './ReportModal';
 import { VoteButtons } from './VoteButtons';
 import { REPORT_TYPES, ReportType } from '../types';
-import { getUserId } from '../utils/userId';
 import 'leaflet/dist/leaflet.css';
 
 const DEFAULT_CENTER: LatLngTuple = [-6.597, 106.799];
 const DEFAULT_ZOOM = 12;
-
-function createCustomIcon(color: string, verified: boolean = false): Icon {
-  const svgIcon = verified ? `
-    <svg width="36" height="46" viewBox="0 0 36 46" xmlns="http://www.w3.org/2000/svg">
-      <path d="M18 0C9.163 0 2 7.163 2 16c0 12 16 26 16 26s16-14 16-26c0-8.837-7.163-16-16-16z" fill="${color}" stroke="#FFD700" stroke-width="3"/>
-      <circle cx="18" cy="16" r="6" fill="white"/>
-      <path d="M18 10l1.5 3 3.5 0.5-2.5 2.5 0.5 3.5-3-1.5-3 1.5 0.5-3.5-2.5-2.5 3.5-0.5z" fill="#FFD700"/>
-    </svg>
-  ` : `
-    <svg width="32" height="42" viewBox="0 0 32 42" xmlns="http://www.w3.org/2000/svg">
-      <path d="M16 0C7.163 0 0 7.163 0 16c0 12 16 26 16 26s16-14 16-26c0-8.837-7.163-16-16-16z" fill="${color}"/>
-      <circle cx="16" cy="16" r="6" fill="white"/>
-    </svg>
-  `;
-
-  return new Icon({
-    iconUrl: `data:image/svg+xml;base64,${btoa(svgIcon)}`,
-    iconSize: verified ? [36, 46] : [32, 42],
-    iconAnchor: verified ? [18, 46] : [16, 42],
-    popupAnchor: [0, verified ? -46 : -42],
-  });
-}
-
-const iconCache = new Map<string, Icon>();
-
-function getIconForType(type: ReportType, trustScore: number = 0): Icon {
-  const verified = trustScore > 5;
-  const cacheKey = `${type}-${verified}`;
-
-  if (!iconCache.has(cacheKey)) {
-    const reportType = REPORT_TYPES.find(rt => rt.value === type);
-    const color = reportType?.color || '#6B7280';
-    iconCache.set(cacheKey, createCustomIcon(color, verified));
-  }
-  return iconCache.get(cacheKey)!;
-}
 
 function LocationMarker({ onLocationSelect }: { onLocationSelect: (lat: number, lng: number) => void }) {
   useMapEvents({
@@ -101,6 +64,42 @@ export function MapView() {
   const [isPinMode, setIsPinMode] = useState(false);
   const [selectedLocation, setSelectedLocation] = useState<{ lat: number; lng: number } | null>(null);
   const [showModal, setShowModal] = useState(false);
+  
+  const iconCache = useRef(new Map<string, Icon>());
+  
+  const createCustomIcon = useCallback((color: string, verified: boolean = false): Icon => {
+    const svgIcon = verified ? `
+      <svg width="36" height="46" viewBox="0 0 36 46" xmlns="http://www.w3.org/2000/svg">
+        <path d="M18 0C9.163 0 2 7.163 2 16c0 12 16 26 16 26s16-14 16-26c0-8.837-7.163-16-16-16z" fill="${color}" stroke="#FFD700" stroke-width="3"/>
+        <circle cx="18" cy="16" r="6" fill="white"/>
+        <path d="M18 10l1.5 3 3.5 0.5-2.5 2.5 0.5 3.5-3-1.5-3 1.5 0.5-3.5-2.5-2.5 3.5-0.5z" fill="#FFD700"/>
+      </svg>
+    ` : `
+      <svg width="32" height="42" viewBox="0 0 32 42" xmlns="http://www.w3.org/2000/svg">
+        <path d="M16 0C7.163 0 0 7.163 0 16c0 12 16 26 16 26s16-14 16-26c0-8.837-7.163-16-16-16z" fill="${color}"/>
+        <circle cx="16" cy="16" r="6" fill="white"/>
+      </svg>
+    `;
+  
+    return new Icon({
+      iconUrl: `data:image/svg+xml;base64,${btoa(svgIcon)}`,
+      iconSize: verified ? [36, 46] : [32, 42],
+      iconAnchor: verified ? [18, 46] : [16, 42],
+      popupAnchor: [0, verified ? -46 : -42],
+    });
+  }, []);
+  
+  const getIconForType = useCallback((type: ReportType, trustScore: number = 0): Icon => {
+    const verified = trustScore > 5;
+    const cacheKey = `${type}-${verified}`;
+  
+    if (!iconCache.current.has(cacheKey)) {
+      const reportType = REPORT_TYPES.find(rt => rt.value === type);
+      const color = reportType?.color || '#6B7280';
+      iconCache.current.set(cacheKey, createCustomIcon(color, verified));
+    }
+    return iconCache.current.get(cacheKey)!;
+  }, [createCustomIcon]);
 
   useEffect(() => {
     fetchReports();
