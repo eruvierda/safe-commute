@@ -64,9 +64,9 @@ export function MapView() {
   const [isPinMode, setIsPinMode] = useState(false);
   const [selectedLocation, setSelectedLocation] = useState<{ lat: number; lng: number } | null>(null);
   const [showModal, setShowModal] = useState(false);
-  
+
   const iconCache = useRef(new Map<string, Icon>());
-  
+
   const createCustomIcon = useCallback((color: string, verified: boolean = false): Icon => {
     const svgIcon = verified ? `
       <svg width="36" height="46" viewBox="0 0 36 46" xmlns="http://www.w3.org/2000/svg">
@@ -80,7 +80,7 @@ export function MapView() {
         <circle cx="16" cy="16" r="6" fill="white"/>
       </svg>
     `;
-  
+
     return new Icon({
       iconUrl: `data:image/svg+xml;base64,${btoa(svgIcon)}`,
       iconSize: verified ? [36, 46] : [32, 42],
@@ -88,11 +88,11 @@ export function MapView() {
       popupAnchor: [0, verified ? -46 : -42],
     });
   }, []);
-  
+
   const getIconForType = useCallback((type: ReportType, trustScore: number = 0): Icon => {
     const verified = trustScore > 5;
     const cacheKey = `${type}-${verified}`;
-  
+
     if (!iconCache.current.has(cacheKey)) {
       const reportType = REPORT_TYPES.find(rt => rt.value === type);
       const color = reportType?.color || '#6B7280';
@@ -146,19 +146,22 @@ export function MapView() {
   const handleReportSubmit = async (type: ReportType, description: string) => {
     if (!selectedLocation) return;
 
-    const { error } = await supabase.from('reports').insert([
+    const { data, error } = await supabase.from('reports').insert([
       {
         type,
         description: description || null,
         latitude: selectedLocation.lat,
         longitude: selectedLocation.lng,
       },
-    ]);
+    ]).select().single();
 
     if (error) {
       console.error('Error creating report:', error);
       alert('Gagal mengirim laporan. Silakan coba lagi.');
     } else {
+      if (data) {
+        setReports(prev => [data as Report, ...prev]);
+      }
       setShowModal(false);
       setSelectedLocation(null);
     }
@@ -263,9 +266,8 @@ export function MapView() {
       <button
         onClick={handleFabClick}
         disabled={isPinMode}
-        className={`absolute bottom-8 left-1/2 -translate-x-1/2 z-[999] bg-blue-600 text-white p-4 rounded-full shadow-2xl hover:bg-blue-700 transition-all transform hover:scale-110 disabled:opacity-50 disabled:cursor-not-allowed ${
-          isPinMode ? 'animate-pulse' : ''
-        }`}
+        className={`absolute bottom-8 left-1/2 -translate-x-1/2 z-[999] bg-blue-600 text-white p-4 rounded-full shadow-2xl hover:bg-blue-700 transition-all transform hover:scale-110 disabled:opacity-50 disabled:cursor-not-allowed ${isPinMode ? 'animate-pulse' : ''
+          }`}
         aria-label="Add report"
         title="Tambah Laporan"
       >
