@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { ThumbsUp, ThumbsDown } from 'lucide-react';
+import toast from 'react-hot-toast';
 import { handleVote } from '../supabaseClient';
 import { getUserId } from '../utils/userId';
 
@@ -22,10 +23,13 @@ export function VoteButtons({ reportId, initialTrustScore, onVoteSuccess }: Vote
       if (result.success) {
         setTrustScore(result.trust_score);
         onVoteSuccess(result.trust_score);
+        if (result.changed) {
+          toast.success(voteType === 'up' ? 'Terima kasih atas verifikasinya!' : 'Feedback Anda telah dicatat');
+        }
       }
     } catch (error) {
       console.error('Error voting:', error);
-      alert('Gagal memberikan suara. Silakan coba lagi.');
+      toast.error('Gagal memberikan suara. Silakan coba lagi.');
     } finally {
       setIsVoting(false);
     }

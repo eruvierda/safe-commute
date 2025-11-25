@@ -1,4 +1,4 @@
-import { X, Settings, Bell, Filter, MapPin } from 'lucide-react';
+import { X, Settings, Bell, Filter, MapPin, User } from 'lucide-react';
 import { REPORT_TYPES, ReportType } from '../types';
 
 interface MenuProps {
@@ -10,6 +10,7 @@ interface MenuProps {
   onHazardTypeToggle: (type: ReportType) => void;
   isWarningEnabled: boolean;
   onWarningToggle: (enabled: boolean) => void;
+  onOpenProfile: () => void;
 }
 
 export function Menu({
@@ -21,6 +22,7 @@ export function Menu({
   onHazardTypeToggle,
   isWarningEnabled,
   onWarningToggle,
+  onOpenProfile,
 }: MenuProps) {
   if (!isOpen) return null;
 
@@ -103,6 +105,24 @@ export function Menu({
                 </div>
               )}
             </div>
+          </section>
+
+          {/* User Profile Section */}
+          <section>
+            <div className="flex items-center gap-2 mb-4">
+              <User className="w-5 h-5 text-blue-600" />
+              <h3 className="text-lg font-semibold text-gray-900">Profil</h3>
+            </div>
+            <button
+              onClick={() => {
+                onOpenProfile();
+                onClose();
+              }}
+              className="w-full px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium flex items-center justify-center gap-2"
+            >
+              <User className="w-5 h-5" />
+              Lihat Profil Saya
+            </button>
           </section>
 
           {/* Filter Section */}

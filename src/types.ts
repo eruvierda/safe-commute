@@ -10,6 +10,8 @@ export interface Report {
   is_resolved: boolean;
   trust_score: number;
   last_confirmed_at: string;
+  user_id?: string;
+  deleted_at?: string | null;
 }
 
 export interface VoteResult {
@@ -19,6 +21,19 @@ export interface VoteResult {
   up_count?: number;
   down_count?: number;
   changed: boolean;
+}
+
+export interface UserVote {
+  vote_type: 'up' | 'down';
+  voted_at: string;
+  report_id: string;
+  report_type: ReportType;
+  report_description: string | null;
+  report_latitude: number;
+  report_longitude: number;
+  report_created_at: string;
+  current_trust_score: number;
+  is_deleted: boolean;
 }
 
 export const REPORT_TYPES: { value: ReportType; label: string; color: string }[] = [

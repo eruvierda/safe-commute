@@ -7,16 +7,18 @@ import { ReportModal } from './ReportModal';
 import { VoteButtons } from './VoteButtons';
 import { Menu } from './Menu';
 import { WarningSystem } from './WarningSystem';
+import { UserProfile } from './UserProfile';
 import { REPORT_TYPES, ReportType } from '../types';
+import { getUserId } from '../utils/userId';
 import 'leaflet/dist/leaflet.css';
 
 const DEFAULT_CENTER: LatLngTuple = [-6.597, 106.799];
 const DEFAULT_ZOOM = 12;
 
-function LocationMarker({ 
-  onLocationSelect, 
-  isPinMode 
-}: { 
+function LocationMarker({
+  onLocationSelect,
+  isPinMode
+}: {
   onLocationSelect: (lat: number, lng: number) => void;
   isPinMode: boolean;
 }) {
@@ -112,6 +114,7 @@ export function MapView() {
   const [enabledHazardTypes, setEnabledHazardTypes] = useState<Set<ReportType>>(
     new Set(REPORT_TYPES.map(rt => rt.value))
   );
+  const [isProfileOpen, setIsProfileOpen] = useState(false);
   const watchIdRef = useRef<number | null>(null);
 
   const iconCache = useRef(new Map<string, Icon>());
@@ -251,6 +254,7 @@ export function MapView() {
         description: description || null,
         latitude: selectedLocation.lat,
         longitude: selectedLocation.lng,
+        user_id: getUserId(),
       },
     ]).select().single();
 
@@ -330,7 +334,7 @@ export function MapView() {
 
         <LocationMarker onLocationSelect={handleLocationSelect} isPinMode={isPinMode} />
         <LocateMeButton />
-        
+
         {/* Menu Button */}
         <button
           onClick={() => setIsMenuOpen(true)}
@@ -427,6 +431,14 @@ export function MapView() {
         onHazardTypeToggle={handleHazardTypeToggle}
         isWarningEnabled={isWarningEnabled}
         onWarningToggle={setIsWarningEnabled}
+        onOpenProfile={() => setIsProfileOpen(true)}
+      />
+
+      {/* User Profile */}
+      <UserProfile
+        isOpen={isProfileOpen}
+        onClose={() => setIsProfileOpen(false)}
+        allReports={reports}
       />
 
       {/* Warning System */}

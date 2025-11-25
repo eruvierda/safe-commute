@@ -41,6 +41,16 @@ Stay alert to nearby hazards:
 - Filter warnings by hazard type
 - Visual and audio notifications
 
+### User Profile & Report Management
+Track and manage your contributions:
+- **Personal Statistics**: View total reports, average trust score, most reported hazard type, and account age
+- **My Reports**: Access all your submitted reports in one place
+- **Edit Reports**: Modify report type or description within 15 minutes of submission
+- **Delete Reports**: Remove your reports with soft delete (preserves data integrity)
+- **Report History**: See trust scores and timestamps for all your contributions
+- **Voting History**: View all reports you've voted on with vote type and current trust scores
+- User identification via UUID stored in localStorage
+
 ## Tech Stack
 
 - **Frontend**: React 18 + TypeScript + Vite
@@ -88,6 +98,7 @@ Stay alert to nearby hazards:
    - `20251124035722_create_reports_table.sql`
    - `20251124044642_add_ttl_logic_for_reports.sql`
    - `20251124050000_create_votes_table_and_trust_score.sql`
+   - `20251125_add_user_profile_support.sql`
 
 5. **Start the development server**
    ```bash
@@ -107,7 +118,10 @@ Stay alert to nearby hazards:
 5. Submit the report - you'll see a success notification
 6. View all reports as colored markers on the map
 7. Click any marker to see report details and vote on accuracy
-8. Use the menu (top-left) to enable warnings and filter hazard types
+8. Use the menu (top-left) to:
+   - Enable proximity warnings and filter hazard types
+   - Access your user profile and statistics
+   - View, edit, or delete your own reports
 
 ## Database Schema
 
@@ -121,7 +135,9 @@ reports
 ├── longitude (float8, validated -180 to 180)
 ├── is_resolved (boolean, default false)
 ├── trust_score (integer, default 0)
-└── last_confirmed_at (timestamptz, updated on upvote)
+├── last_confirmed_at (timestamptz, updated on upvote)
+├── user_id (uuid, nullable, tracks report owner)
+└── deleted_at (timestamptz, nullable, for soft deletes)
 
 votes
 ├── report_id (uuid, foreign key to reports)
@@ -133,8 +149,11 @@ votes
 
 ### Key Database Functions
 
-- `get_active_reports()`: Returns only non-expired reports based on TTL rules
+- `get_active_reports()`: Returns only non-expired, non-deleted reports based on TTL rules
 - `handle_vote(report_id, user_id, vote_type)`: Processes votes and updates trust scores
+- `get_user_reports(user_id)`: Returns all reports created by a specific user (including deleted)
+- `update_user_report(report_id, user_id, type, description)`: Updates report if owner and within 15 minutes
+- `delete_user_report(report_id, user_id)`: Soft deletes report if owner
 
 ## Development
 
