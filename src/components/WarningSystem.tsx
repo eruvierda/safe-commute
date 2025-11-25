@@ -111,7 +111,7 @@ export function WarningSystem({
         <source src="data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBSuBzvLZiTYIG2m98OSdTgwOUKzn8LZjGwU8k9nyzHksBSR3x/DdkEAKFF606euoVRQKRp/g8r5sIQUrgc7y2Yk2CBtpvfDknU4MDlCs5/C2YxsFPJPZ8sx5LAUkd8fw3ZBAC" type="audio/wav" />
       </audio>
 
-      <div className="fixed top-24 left-16 right-4 sm:left-auto sm:right-4 sm:w-96 z-[1002] space-y-2">
+      <div className="fixed top-36 left-16 right-4 sm:left-auto sm:right-4 sm:w-80 z-[1002] space-y-2">
         {warnings.slice(0, 3).map((warning) => {
           const reportTypeInfo = REPORT_TYPES.find(
             (rt) => rt.value === warning.report.type
@@ -120,45 +120,40 @@ export function WarningSystem({
           return (
             <div
               key={warning.id}
-              className="bg-red-50 border-2 border-red-500 rounded-lg shadow-lg p-4 animate-in slide-in-from-top duration-300"
+              className="bg-red-50 border-2 border-red-500 rounded-lg shadow-lg p-2.5 animate-in slide-in-from-top duration-300"
             >
-              <div className="flex items-start gap-3">
+              <div className="flex items-center gap-2">
                 <div className="flex-shrink-0">
-                  <AlertTriangle className="w-6 h-6 text-red-600 animate-pulse" />
+                  <AlertTriangle className="w-5 h-5 text-red-600 animate-pulse" />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 mb-1">
+                  <div className="flex items-center gap-1.5">
                     <div
-                      className="w-3 h-3 rounded-full"
+                      className="w-2.5 h-2.5 rounded-full"
                       style={{ backgroundColor: reportTypeInfo?.color }}
                     />
-                    <h4 className="font-semibold text-red-900 text-sm">
+                    <h4 className="font-semibold text-red-900 text-xs">
                       {reportTypeInfo?.label}
                     </h4>
                   </div>
-                  {warning.report.description && (
-                    <p className="text-sm text-red-800 mb-2 line-clamp-2">
-                      {warning.report.description}
-                    </p>
-                  )}
-                  <p className="text-xs text-red-700 font-medium">
-                    ⚠️ {warning.distance} km dari lokasi Anda
+                  <p className="text-xs text-red-700 font-medium mt-0.5">
+                    {warning.distance} km dari lokasi Anda
                   </p>
                 </div>
                 <button
                   onClick={() => handleDismiss(warning.id)}
-                  className="flex-shrink-0 p-1 hover:bg-red-100 rounded transition-colors"
+                  className="flex-shrink-0 p-0.5 hover:bg-red-100 rounded transition-colors"
                   aria-label="Dismiss warning"
                 >
-                  <X className="w-4 h-4 text-red-600" />
+                  <X className="w-3.5 h-3.5 text-red-600" />
                 </button>
               </div>
             </div>
           );
         })}
         {warnings.length > 3 && (
-          <div className="bg-yellow-50 border border-yellow-400 rounded-lg p-3 text-center">
-            <p className="text-sm text-yellow-800 font-medium">
+          <div className="bg-yellow-50 border border-yellow-400 rounded-lg p-2 text-center">
+            <p className="text-xs text-yellow-800 font-medium">
               +{warnings.length - 3} bahaya lainnya dalam radius
             </p>
           </div>
