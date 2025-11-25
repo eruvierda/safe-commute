@@ -110,8 +110,9 @@ export function MapView() {
   const [showModal, setShowModal] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
+  const [hasCentered, setHasCentered] = useState(false);
   const [warningRadius, setWarningRadius] = useState(2); // Default 2km
-  const [isWarningEnabled, setIsWarningEnabled] = useState(false);
+  const [isWarningEnabled, setIsWarningEnabled] = useState(true); // Default enabled for safety
   const [enabledHazardTypes, setEnabledHazardTypes] = useState<Set<ReportType>>(
     new Set(REPORT_TYPES.map(rt => rt.value))
   );
@@ -180,36 +181,26 @@ export function MapView() {
     };
   }, []);
 
-  // Continuous location tracking for warning system
+  // Continuous location tracking
   useEffect(() => {
-    if (isWarningEnabled && 'geolocation' in navigator) {
-      // Start watching position
+    if ('geolocation' in navigator) {
       watchIdRef.current = navigator.geolocation.watchPosition(
         (position) => {
-          setUserLocation({
+          const newLocation = {
             lat: position.coords.latitude,
             lng: position.coords.longitude,
-          });
+          };
+          setUserLocation(newLocation);
         },
         (error) => {
           console.error('Error watching location:', error);
-          setUserLocation(null);
         },
         {
           enableHighAccuracy: true,
-          maximumAge: 30000, // Accept cached position up to 30 seconds old
-          timeout: 10000, // Timeout after 10 seconds
+          maximumAge: 10000,
+          timeout: 5000,
         }
       );
-    } else {
-      // Stop watching position
-      if (watchIdRef.current !== null) {
-        navigator.geolocation.clearWatch(watchIdRef.current);
-        watchIdRef.current = null;
-      }
-      if (!isWarningEnabled) {
-        setUserLocation(null);
-      }
     }
 
     return () => {
@@ -217,7 +208,19 @@ export function MapView() {
         navigator.geolocation.clearWatch(watchIdRef.current);
       }
     };
-  }, [isWarningEnabled]);
+  }, []);
+
+  // Center map on user location once
+  function MapRecenter({ location, hasCentered, setHasCentered }: { location: { lat: number; lng: number } | null, hasCentered: boolean, setHasCentered: (v: boolean) => void }) {
+    const map = useMap();
+    useEffect(() => {
+      if (location && !hasCentered) {
+        map.flyTo([location.lat, location.lng], 15);
+        setHasCentered(true);
+      }
+    }, [location, hasCentered, map, setHasCentered]);
+    return null;
+  }
 
   const fetchReports = async () => {
     try {
@@ -332,6 +335,36 @@ export function MapView() {
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
+
+        <MapRecenter location={userLocation} hasCentered={hasCentered} setHasCentered={setHasCentered} />
+
+        {/* User Location Marker */}
+        {userLocation && (
+          <Marker
+            position={[userLocation.lat, userLocation.lng]}
+            icon={new Icon({
+              iconUrl: `data:image/svg+xml;base64,${btoa(`
+                <svg width="40" height="40" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg">
+                  <circle cx="20" cy="20" r="18" fill="#3B82F6" stroke="white" stroke-width="3" opacity="0.9"/>
+                  <circle cx="20" cy="20" r="8" fill="white"/>
+                  <path d="M14 24 Q20 30 26 24" stroke="white" stroke-width="2" fill="none" stroke-linecap="round"/>
+                  <circle cx="16" cy="16" r="2" fill="#1E40AF"/>
+                  <circle cx="24" cy="16" r="2" fill="#1E40AF"/>
+                </svg>
+              `)}`,
+              iconSize: [40, 40],
+              iconAnchor: [20, 20],
+            })}
+            zIndexOffset={1000}
+          >
+            <Popup>
+              <div className="text-center">
+                <p className="font-bold text-gray-900">Lokasi Anda</p>
+                <p className="text-xs text-gray-500">Anda ada di sini</p>
+              </div>
+            </Popup>
+          </Marker>
+        )}
 
         <LocationMarker onLocationSelect={handleLocationSelect} isPinMode={isPinMode} />
         <LocateMeButton />
