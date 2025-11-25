@@ -13,12 +13,51 @@ import 'leaflet/dist/leaflet.css';
 const DEFAULT_CENTER: LatLngTuple = [-6.597, 106.799];
 const DEFAULT_ZOOM = 12;
 
-function LocationMarker({ onLocationSelect }: { onLocationSelect: (lat: number, lng: number) => void }) {
+function LocationMarker({ 
+  onLocationSelect, 
+  isPinMode 
+}: { 
+  onLocationSelect: (lat: number, lng: number) => void;
+  isPinMode: boolean;
+}) {
+  const [mousePosition, setMousePosition] = useState<{ lat: number; lng: number } | null>(null);
+
   useMapEvents({
     click(e) {
       onLocationSelect(e.latlng.lat, e.latlng.lng);
     },
+    mousemove(e) {
+      if (isPinMode) {
+        setMousePosition({ lat: e.latlng.lat, lng: e.latlng.lng });
+      } else {
+        setMousePosition(null);
+      }
+    },
+    mouseout() {
+      setMousePosition(null);
+    },
   });
+
+  // Show visual pin indicator when in pin mode and mouse is over map
+  if (isPinMode && mousePosition) {
+    return (
+      <Marker
+        position={[mousePosition.lat, mousePosition.lng]}
+        icon={new Icon({
+          iconUrl: `data:image/svg+xml;base64,${btoa(`
+            <svg width="32" height="42" viewBox="0 0 32 42" xmlns="http://www.w3.org/2000/svg">
+              <path d="M16 0C7.163 0 0 7.163 0 16c0 12 16 26 16 26s16-14 16-26c0-8.837-7.163-16-16-16z" fill="#3B82F6" opacity="0.8" stroke="#ffffff" stroke-width="2"/>
+              <circle cx="16" cy="16" r="6" fill="#ffffff"/>
+            </svg>
+          `)}`,
+          iconSize: [32, 42],
+          iconAnchor: [16, 42],
+        })}
+        interactive={false}
+      />
+    );
+  }
+
   return null;
 }
 
@@ -281,7 +320,7 @@ export function MapView() {
       <MapContainer
         center={DEFAULT_CENTER}
         zoom={DEFAULT_ZOOM}
-        className={`w-full h-full ${isPinMode ? 'cursor-crosshair' : ''}`}
+        className={`w-full h-full ${isPinMode ? 'cursor-pin' : ''}`}
         zoomControl={false}
       >
         <TileLayer
@@ -289,7 +328,7 @@ export function MapView() {
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
 
-        <LocationMarker onLocationSelect={handleLocationSelect} />
+        <LocationMarker onLocationSelect={handleLocationSelect} isPinMode={isPinMode} />
         <LocateMeButton />
         
         {/* Menu Button */}
