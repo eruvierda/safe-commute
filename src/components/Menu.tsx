@@ -47,7 +47,7 @@ export function Menu({
       />
 
       {/* Menu Panel */}
-      <div className="fixed right-0 top-0 h-full w-full sm:w-96 bg-white shadow-2xl z-[1001] overflow-y-auto">
+      <div className="fixed left-0 top-0 h-full w-full sm:w-96 bg-white shadow-2xl z-[1001] overflow-y-auto">
         <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between">
           <h2 className="text-xl font-semibold text-gray-900 flex items-center gap-2">
             <Settings className="w-5 h-5" />

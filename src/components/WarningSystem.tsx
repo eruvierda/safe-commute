@@ -91,6 +91,11 @@ export function WarningSystem({
     }
   }, [isEnabled, warningRadius, userLocation, reports, enabledHazardTypes, dismissedWarnings]);
 
+  // Reset dismissed warnings when settings change
+  useEffect(() => {
+    setDismissedWarnings(new Set());
+  }, [warningRadius, enabledHazardTypes]);
+
   const handleDismiss = (warningId: string) => {
     setDismissedWarnings((prev) => new Set([...prev, warningId]));
   };
@@ -106,7 +111,7 @@ export function WarningSystem({
         <source src="data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBSuBzvLZiTYIG2m98OSdTgwOUKzn8LZjGwU8k9nyzHksBSR3x/DdkEAKFF606euoVRQKRp/g8r5sIQUrgc7y2Yk2CBtpvfDknU4MDlCs5/C2YxsFPJPZ8sx5LAUkd8fw3ZBAC" type="audio/wav" />
       </audio>
 
-      <div className="fixed top-4 left-4 right-4 sm:left-auto sm:right-4 sm:w-96 z-[1002] space-y-2">
+      <div className="fixed top-20 left-4 right-4 sm:left-auto sm:right-4 sm:w-96 z-[1002] space-y-2">
         {warnings.slice(0, 3).map((warning) => {
           const reportTypeInfo = REPORT_TYPES.find(
             (rt) => rt.value === warning.report.type
