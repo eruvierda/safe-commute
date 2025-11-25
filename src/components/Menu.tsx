@@ -1,4 +1,7 @@
-import { X, Settings, Bell, Filter, MapPin, User } from 'lucide-react';
+import { X, Bell, User, LogOut, Settings, Filter, MapPin } from 'lucide-react';
+import { useState } from 'react';
+import { useAuth } from '../contexts/AuthContext';
+import { AuthModal } from './Auth/AuthModal';
 import { REPORT_TYPES, ReportType } from '../types';
 
 interface MenuProps {
@@ -22,8 +25,16 @@ export function Menu({
   onHazardTypeToggle,
   isWarningEnabled,
   onWarningToggle,
-  onOpenProfile,
+  onOpenProfile
 }: MenuProps) {
+  const { user, profile, signOut } = useAuth();
+  const [showAuthModal, setShowAuthModal] = useState(false);
+
+  const handleProfileClick = () => {
+    onOpenProfile();
+    onClose();
+  };
+
   if (!isOpen) return null;
 
   return (
@@ -51,137 +62,175 @@ export function Menu({
           </button>
         </div>
 
-        <div className="p-6 space-y-6">
-          {/* Warning System Section */}
-          <section>
-            <div className="flex items-center gap-2 mb-4">
-              <Bell className="w-5 h-5 text-blue-600" />
-              <h3 className="text-lg font-semibold text-gray-900">Sistem Peringatan</h3>
-            </div>
-
-            <div className="space-y-4">
+        <div className="space-y-6">
+          {/* User Profile Section */}
+          <div className="p-4 border-b border-gray-200">
+            {user ? (
               <div className="flex items-center justify-between">
-                <div>
-                  <label className="text-sm font-medium text-gray-700">
-                    Aktifkan Peringatan
-                  </label>
-                  <p className="text-xs text-gray-500 mt-1">
-                    Dapatkan notifikasi saat mendekati bahaya
-                  </p>
+                <div className="flex items-center gap-3">
+                  {profile?.avatar_url ? (
+                    <img
+                      src={profile.avatar_url}
+                      alt={profile.display_name}
+                      className="w-10 h-10 rounded-full object-cover"
+                    />
+                  ) : (
+                    <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
+                      <User className="w-6 h-6 text-blue-600" />
+                    </div>
+                  )}
+                  <div>
+                    <p className="font-medium text-gray-900">{profile?.display_name || 'Pengguna'}</p>
+                    <p className="text-xs text-gray-500 truncate max-w-[150px]">{user.email}</p>
+                  </div>
                 </div>
-                <label className="relative inline-flex items-center cursor-pointer">
-                  <input
-                    type="checkbox"
-                    className="sr-only peer"
-                    checked={isWarningEnabled}
-                    onChange={(e) => onWarningToggle(e.target.checked)}
-                  />
-                  <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
-                </label>
+                <button
+                  onClick={() => signOut()}
+                  className="p-2 text-gray-500 hover:text-red-600 hover:bg-red-50 rounded-full transition-colors"
+                  title="Keluar"
+                >
+                  <LogOut className="w-5 h-5" />
+                </button>
+              </div>
+            ) : (
+              <button
+                onClick={() => setShowAuthModal(true)}
+                className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
+              >
+                <User className="w-5 h-5" />
+                Masuk / Daftar
+              </button>
+            )}
+          </div>
+
+          <div className="px-6 space-y-6 pb-6">
+            {user && (
+              <button
+                onClick={handleProfileClick}
+                className="w-full flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-gray-50 rounded-lg transition-colors border border-gray-200"
+              >
+                <User className="w-5 h-5" />
+                <span className="font-medium">Profil Saya</span>
+              </button>
+            )}
+
+            {/* Warning System Section */}
+            <section>
+              <div className="flex items-center gap-2 mb-4">
+                <Bell className="w-5 h-5 text-blue-600" />
+                <h3 className="text-lg font-semibold text-gray-900">Sistem Peringatan</h3>
               </div>
 
-              {isWarningEnabled && (
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Radius Peringatan: {warningRadius} km
-                  </label>
-                  <input
-                    type="range"
-                    min="0.5"
-                    max="10"
-                    step="0.5"
-                    value={warningRadius}
-                    onChange={(e) => onWarningRadiusChange(parseFloat(e.target.value))}
-                    className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-600"
-                  />
-                  <div className="flex justify-between text-xs text-gray-500 mt-1">
-                    <span>0.5 km</span>
-                    <span>5 km</span>
-                    <span>10 km</span>
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <label className="text-sm font-medium text-gray-700">
+                      Aktifkan Peringatan
+                    </label>
+                    <p className="text-xs text-gray-500 mt-1">
+                      Dapatkan notifikasi saat mendekati bahaya
+                    </p>
                   </div>
-                  <p className="text-xs text-gray-500 mt-2">
-                    Anda akan mendapat peringatan jika ada bahaya dalam radius ini
-                  </p>
-                </div>
-              )}
-            </div>
-          </section>
-
-          {/* User Profile Section */}
-          <section>
-            <div className="flex items-center gap-2 mb-4">
-              <User className="w-5 h-5 text-blue-600" />
-              <h3 className="text-lg font-semibold text-gray-900">Profil</h3>
-            </div>
-            <button
-              onClick={() => {
-                onOpenProfile();
-                onClose();
-              }}
-              className="w-full px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium flex items-center justify-center gap-2"
-            >
-              <User className="w-5 h-5" />
-              Lihat Profil Saya
-            </button>
-          </section>
-
-          {/* Filter Section */}
-          <section>
-            <div className="flex items-center gap-2 mb-4">
-              <Filter className="w-5 h-5 text-blue-600" />
-              <h3 className="text-lg font-semibold text-gray-900">Filter Bahaya</h3>
-            </div>
-
-            <div className="space-y-2">
-              {REPORT_TYPES.map((reportType) => {
-                const isEnabled = enabledHazardTypes.has(reportType.value);
-                return (
-                  <label
-                    key={reportType.value}
-                    className="flex items-center gap-3 p-3 rounded-lg border border-gray-200 hover:bg-gray-50 cursor-pointer transition-colors"
-                  >
+                  <label className="relative inline-flex items-center cursor-pointer">
                     <input
                       type="checkbox"
-                      checked={isEnabled}
-                      onChange={() => onHazardTypeToggle(reportType.value)}
-                      className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                      className="sr-only peer"
+                      checked={isWarningEnabled}
+                      onChange={(e) => onWarningToggle(e.target.checked)}
                     />
-                    <div
-                      className="w-4 h-4 rounded-full"
-                      style={{ backgroundColor: reportType.color }}
-                    />
-                    <span className="flex-1 text-sm font-medium text-gray-700">
-                      {reportType.label}
-                    </span>
+                    <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
                   </label>
-                );
-              })}
-            </div>
-            <p className="text-xs text-gray-500 mt-3">
-              Pilih jenis bahaya yang ingin ditampilkan di peta
-            </p>
-          </section>
+                </div>
 
-          {/* Info Section */}
-          <section className="pt-4 border-t border-gray-200">
-            <div className="flex items-center gap-2 mb-3">
-              <MapPin className="w-5 h-5 text-blue-600" />
-              <h3 className="text-lg font-semibold text-gray-900">Tentang</h3>
-            </div>
-            <div className="text-sm text-gray-600 space-y-2">
-              <p>
-                SafeCommute membantu Anda menghindari bahaya di jalan dengan sistem
-                peringatan berbasis radius.
+                {isWarningEnabled && (
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Radius Peringatan: {warningRadius} km
+                    </label>
+                    <input
+                      type="range"
+                      min="0.5"
+                      max="10"
+                      step="0.5"
+                      value={warningRadius}
+                      onChange={(e) => onWarningRadiusChange(parseFloat(e.target.value))}
+                      className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-600"
+                    />
+                    <div className="flex justify-between text-xs text-gray-500 mt-1">
+                      <span>0.5 km</span>
+                      <span>5 km</span>
+                      <span>10 km</span>
+                    </div>
+                    <p className="text-xs text-gray-500 mt-2">
+                      Anda akan mendapat peringatan jika ada bahaya dalam radius ini
+                    </p>
+                  </div>
+                )}
+              </div>
+            </section>
+
+            {/* Filter Section */}
+            <section>
+              <div className="flex items-center gap-2 mb-4">
+                <Filter className="w-5 h-5 text-blue-600" />
+                <h3 className="text-lg font-semibold text-gray-900">Filter Bahaya</h3>
+              </div>
+
+              <div className="space-y-2">
+                {REPORT_TYPES.map((reportType) => {
+                  const isEnabled = enabledHazardTypes.has(reportType.value);
+                  return (
+                    <label
+                      key={reportType.value}
+                      className="flex items-center gap-3 p-3 rounded-lg border border-gray-200 hover:bg-gray-50 cursor-pointer transition-colors"
+                    >
+                      <input
+                        type="checkbox"
+                        checked={isEnabled}
+                        onChange={() => onHazardTypeToggle(reportType.value)}
+                        className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                      />
+                      <div
+                        className="w-4 h-4 rounded-full"
+                        style={{ backgroundColor: reportType.color }}
+                      />
+                      <span className="flex-1 text-sm font-medium text-gray-700">
+                        {reportType.label}
+                      </span>
+                    </label>
+                  );
+                })}
+              </div>
+              <p className="text-xs text-gray-500 mt-3">
+                Pilih jenis bahaya yang ingin ditampilkan di peta
               </p>
-              <p>
-                Aktifkan sistem peringatan untuk mendapatkan notifikasi saat mendekati
-                area bahaya.
-              </p>
-            </div>
-          </section>
+            </section>
+
+            {/* Info Section */}
+            <section className="pt-4 border-t border-gray-200">
+              <div className="flex items-center gap-2 mb-3">
+                <MapPin className="w-5 h-5 text-blue-600" />
+                <h3 className="text-lg font-semibold text-gray-900">Tentang</h3>
+              </div>
+              <div className="text-sm text-gray-600 space-y-2">
+                <p>
+                  SafeCommute membantu Anda menghindari bahaya di jalan dengan sistem
+                  peringatan berbasis radius.
+                </p>
+                <p>
+                  Aktifkan sistem peringatan untuk mendapatkan notifikasi saat mendekati
+                  area bahaya.
+                </p>
+              </div>
+            </section>
+          </div>
         </div>
       </div>
+
+      <AuthModal
+        isOpen={showAuthModal}
+        onClose={() => setShowAuthModal(false)}
+      />
     </>
   );
 }
-

@@ -1,6 +1,6 @@
-import { X, User, FileText, ThumbsUp, TrendingUp, Calendar } from 'lucide-react';
+import { X, User, FileText, ThumbsUp, TrendingUp, Calendar, Mail } from 'lucide-react';
 import { useEffect, useState } from 'react';
-import { getUserId } from '../utils/userId';
+import { useAuth } from '../contexts/AuthContext';
 import { getUserReports, getUserVotingHistory } from '../utils/userStats';
 import { getUserStats, type UserStats } from '../utils/userStats';
 import { REPORT_TYPES, type Report, type UserVote } from '../types';
@@ -14,6 +14,7 @@ interface UserProfileProps {
 }
 
 export function UserProfile({ isOpen, onClose, allReports }: UserProfileProps) {
+    const { user, profile } = useAuth();
     const [userReports, setUserReports] = useState<Report[]>([]);
     const [userVotes, setUserVotes] = useState<UserVote[]>([]);
     const [stats, setStats] = useState<UserStats | null>(null);
@@ -28,9 +29,11 @@ export function UserProfile({ isOpen, onClose, allReports }: UserProfileProps) {
     }, [isOpen, allReports]);
 
     const loadUserData = async () => {
+        if (!user) return;
+
         setIsLoading(true);
         try {
-            const userId = getUserId();
+            const userId = user.id;
             const reports = await getUserReports(userId);
             setUserReports(reports);
 
@@ -104,6 +107,32 @@ export function UserProfile({ isOpen, onClose, allReports }: UserProfileProps) {
                         </div>
                     ) : (
                         <>
+                            {/* User Info */}
+                            <div className="flex items-center gap-4 mb-6">
+                                {profile?.avatar_url ? (
+                                    <img
+                                        src={profile.avatar_url}
+                                        alt={profile.display_name}
+                                        className="w-16 h-16 rounded-full object-cover border-2 border-blue-100"
+                                    />
+                                ) : (
+                                    <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center border-2 border-blue-50">
+                                        <User className="w-8 h-8 text-blue-600" />
+                                    </div>
+                                )}
+                                <div>
+                                    <h3 className="text-xl font-bold text-gray-900">{profile?.display_name || 'Pengguna'}</h3>
+                                    <div className="flex items-center gap-2 text-gray-500 text-sm mt-1">
+                                        <Mail className="w-3 h-3" />
+                                        <span>{user?.email}</span>
+                                    </div>
+                                    <div className="flex items-center gap-2 text-gray-500 text-sm mt-1">
+                                        <Calendar className="w-3 h-3" />
+                                        <span>Bergabung {new Date(user?.created_at || Date.now()).toLocaleDateString('id-ID', { month: 'long', year: 'numeric' })}</span>
+                                    </div>
+                                </div>
+                            </div>
+
                             {/* Statistics Grid */}
                             <div className="grid grid-cols-2 gap-4">
                                 <div className="bg-blue-50 rounded-lg p-4">
@@ -134,15 +163,15 @@ export function UserProfile({ isOpen, onClose, allReports }: UserProfileProps) {
                                     </p>
                                 </div>
 
-                                <div className="bg-orange-50 rounded-lg p-4">
-                                    <div className="flex items-center gap-2 mb-2">
-                                        <Calendar className="w-5 h-5 text-orange-600" />
-                                        <span className="text-sm text-gray-600">Usia Akun</span>
+                                <div className="bg-gray-50 p-4 rounded-lg">
+                                    <div className="flex items-center gap-2 text-gray-600 mb-1">
+                                        <Calendar className="w-4 h-4" />
+                                        <span className="text-sm font-medium">Usia Akun</span>
                                     </div>
-                                    <p className="text-2xl font-bold text-orange-600">
-                                        {stats?.accountAgeDays || 0}
-                                        <span className="text-sm font-normal ml-1">hari</span>
-                                    </p>
+                                    <div className="text-2xl font-bold text-gray-900">
+                                        {Math.floor((Date.now() - new Date(user?.created_at || Date.now()).getTime()) / (1000 * 60 * 60 * 24))}
+                                        <span className="text-sm font-normal text-gray-500 ml-1">hari</span>
+                                    </div>
                                 </div>
                             </div>
 

@@ -35,21 +35,6 @@ Community-driven accuracy through voting:
 
 ### Proximity Warning System
 Stay alert to nearby hazards:
-- Enable warnings in the menu
-- Set custom warning radius (0.5km - 10km)
-- Get real-time alerts when approaching reported hazards
-- Filter warnings by hazard type
-- Visual and audio notifications
-
-### User Profile & Report Management
-Track and manage your contributions:
-- **Personal Statistics**: View total reports, average trust score, most reported hazard type, and account age
-- **My Reports**: Access all your submitted reports in one place
-- **Edit Reports**: Modify report type or description within 15 minutes of submission
-- **Delete Reports**: Remove your reports with soft delete (preserves data integrity)
-- **Report History**: See trust scores and timestamps for all your contributions
-- **Voting History**: View all reports you've voted on with vote type and current trust scores
-- User identification via UUID stored in localStorage
 
 ## Tech Stack
 

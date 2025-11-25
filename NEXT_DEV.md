@@ -447,6 +447,201 @@ Based on current state and user needs, I recommend implementing in this order:
 - Update CODE_REVIEW.md with implementation notes
 
 ---
+- [ ] Auto-detect user language from browser
+- [ ] Translate report descriptions (optional)
+- [ ] Localized date/time formats
+- [ ] RTL support for future languages
+
+**Technical Notes**:
+- Use react-i18next or similar
+- Create translation files (en.json, id.json)
+- Implement language switcher in menu
+- Store language preference
+- Consider machine translation API for user content
+
+---
+
+### 15. Advanced Security
+**Priority**: High | **Effort**: High | **Impact**: Very High
+
+- [ ] Rate limiting (5 reports per hour per user)
+- [ ] CAPTCHA on report submission (reCAPTCHA v3)
+- [ ] IP-based spam detection
+- [ ] Report flagging system
+- [ ] User reputation scores
+- [ ] Implement Supabase Auth
+
+**Technical Notes**:
+- Add rate_limits table
+- Implement CAPTCHA verification
+- Use Supabase Edge Functions for rate limiting
+- Add flag_report RPC function
+- Calculate reputation based on report accuracy
+
+**Database Schema**:
+```sql
+CREATE TABLE user_rate_limits (
+  user_id uuid PRIMARY KEY,
+  report_count integer DEFAULT 0,
+  window_start timestamptz DEFAULT now()
+);
+
+CREATE TABLE report_flags (
+  id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
+  report_id uuid REFERENCES reports(id),
+  user_id uuid,
+  reason text,
+  created_at timestamptz DEFAULT now()
+);
+```
+
+---
+
+## 🛠️ Technical Improvements
+
+### 16. Performance Optimization
+**Priority**: Medium | **Effort**: Medium | **Impact**: High
+
+- [ ] Virtual scrolling for large report lists
+- [ ] Lazy loading of map markers
+- [ ] Image optimization and CDN
+- [ ] Code splitting by route
+- [ ] Implement React.memo for expensive components
+
+**Technical Notes**:
+- Use react-window for virtual scrolling
+- Implement viewport-based marker loading
+- Configure Cloudflare/Vercel CDN
+- Use React.lazy and Suspense
+- Profile with React DevTools
+
+---
+
+### 17. Testing & Quality Assurance
+**Priority**: High | **Effort**: High | **Impact**: High
+
+- [ ] Unit tests for utilities (Vitest)
+- [ ] Component tests (React Testing Library)
+- [ ] E2E tests (Playwright/Cypress)
+- [ ] Performance testing (Lighthouse CI)
+- [ ] Accessibility testing (axe-core)
+
+**Technical Notes**:
+- Aim for 80%+ code coverage
+- Test critical user flows
+- Add CI/CD pipeline for tests
+- Set up automated accessibility checks
+- Performance budgets in CI
+
+---
+
+### 18. DevOps & Monitoring
+**Priority**: Medium | **Effort**: Medium | **Impact**: High
+
+- [ ] CI/CD pipeline (GitHub Actions)
+- [ ] Error tracking (Sentry)
+- [ ] Analytics (Google Analytics, Mixpanel)
+- [ ] Performance monitoring (Web Vitals)
+- [ ] Automated database backups
+
+**Technical Notes**:
+- Set up GitHub Actions workflow
+- Configure Sentry for error tracking
+- Implement analytics events
+- Monitor Core Web Vitals
+- Schedule daily Supabase backups
+
+---
+
+## ⚡ Quick Wins (Easy to Implement)
+
+### 19. UI Polish
+**Priority**: Low | **Effort**: Low | **Impact**: Medium
+
+- [ ] Loading skeletons for reports
+- [ ] Empty states with illustrations
+- [ ] Smooth transitions/animations
+- [ ] Haptic feedback on mobile
+- [ ] Pull-to-refresh on mobile
+
+**Technical Notes**:
+- Create skeleton components
+- Add empty state SVGs
+- Use Framer Motion for animations
+- Implement Vibration API
+- Use touch events for pull-to-refresh
+
+---
+
+### 20. Small Quality-of-Life Features
+**Priority**: Low | **Effort**: Low | **Impact**: Low
+
+- [ ] "Copy coordinates" button
+- [ ] "Get directions" link (opens Google Maps)
+- [ ] Report expiry countdown timer
+- [ ] "Last updated" timestamp
+- [ ] Weather overlay on map
+- [ ] Dark mode toggle
+
+**Technical Notes**:
+- Use Clipboard API
+- Generate Google Maps URL
+- Implement countdown with setInterval
+- Add relative time updates
+- Integrate weather tile layer
+- CSS custom properties for theming
+
+---
+
+## 📋 Implementation Priority Matrix
+
+### Must Have (Next Sprint)
+1. ✅ Toast notifications (implemented with react-hot-toast)
+2. ✅ User profile/history (implemented with edit/delete functionality)
+3. Map clustering
+4. Photo upload for reports
+
+### Should Have (Next Month)
+5. Report filtering & search
+6. Enhanced notifications
+7. Admin panel basics
+8. Advanced security (rate limiting, CAPTCHA)
+
+### Nice to Have (Next Quarter)
+9. Analytics dashboard
+10. PWA/Offline support
+11. Social features
+12. Gamification
+
+### Future Consideration
+13. AI/ML integration
+14. Multi-language support
+15. External API integrations
+
+---
+
+## 🎯 Recommended Next Steps
+
+Based on current state and user needs, I recommend implementing in this order:
+
+1. ✅ ~~**Toast notifications**~~ - Completed with react-hot-toast
+2. ✅ ~~**User profile**~~ - Completed with statistics, edit, and delete features
+3. **Map clustering** - Essential for performance with many reports
+4. **Photo upload** - Visual proof significantly increases report trust
+5. **Rate limiting** - Prevent spam before it becomes a problem
+6. **Voting history** - Complete the user profile feature set
+
+---
+
+## 📝 Notes
+
+- All features should maintain mobile-first design
+- Consider performance impact on low-end devices
+- Ensure accessibility in all new features
+- Document new features in README
+- Update CODE_REVIEW.md with implementation notes
+
+---
 
 **Last Updated**: 2025-11-25  
 **Version**: 1.2  
@@ -454,6 +649,13 @@ Based on current state and user needs, I recommend implementing in this order:
 
 ## 📊 Recent Updates (v1.2)
 
+| Feature | Priority | Status | Description |
+| :--- | :--- | :--- | :--- |
+| **User Authentication** | High | ✅ Completed | Supabase Auth integration (Login/Signup). |
+| **User Profile** | High | ✅ Completed | View user stats and history. |
+| **Voting History** | Medium | ✅ Completed | View history of upvotes/downvotes. |
+| **Push Notifications** | Medium | 🚧 Planned | Notify users of nearby hazards. |
+| **Gamification** | Low | 📝 Backlog | Badges and leaderboards. |
 - ✅ **Voting History**: Complete voting history view with vote type indicators
 - ✅ **User Profile System**: Complete user statistics dashboard
 - ✅ **Report Management**: Edit reports within 15 minutes, soft delete functionality

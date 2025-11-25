@@ -1,72 +1,122 @@
-import { useState } from 'react';
 import { ThumbsUp, ThumbsDown } from 'lucide-react';
-import toast from 'react-hot-toast';
-import { handleVote } from '../supabaseClient';
-import { getUserId } from '../utils/userId';
+import { useState, useEffect } from 'react';
+import { useAuth } from '../contexts/AuthContext';
+import { AuthModal } from './Auth/AuthModal';
+import { supabase } from '../supabaseClient';
 
 interface VoteButtonsProps {
   reportId: string;
   initialTrustScore: number;
-  onVoteSuccess: (newTrustScore: number) => void;
+  onVoteChange?: (newTrustScore: number) => void;
 }
 
-export function VoteButtons({ reportId, initialTrustScore, onVoteSuccess }: VoteButtonsProps) {
+export function VoteButtons({ reportId, initialTrustScore, onVoteChange }: VoteButtonsProps) {
+  const { user } = useAuth();
+  const [userVote, setUserVote] = useState<'up' | 'down' | null>(null);
   const [trustScore, setTrustScore] = useState(initialTrustScore);
-  const [isVoting, setIsVoting] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [showAuthModal, setShowAuthModal] = useState(false);
 
-  const handleVoteClick = async (voteType: 'up' | 'down') => {
-    setIsVoting(true);
+  useEffect(() => {
+    if (user) {
+      checkUserVote();
+    } else {
+      setUserVote(null);
+    }
+  }, [reportId, user]);
+
+  const checkUserVote = async () => {
+    if (!user) return;
+
     try {
-      const userId = getUserId();
-      const result = await handleVote(reportId, userId, voteType);
+      const { data, error } = await supabase
+        .from('votes')
+        .select('vote_type')
+        .eq('report_id', reportId)
+        .eq('user_id', user.id)
+        .maybeSingle();
 
-      if (result.success) {
-        setTrustScore(result.trust_score);
-        onVoteSuccess(result.trust_score);
-        if (result.changed) {
-          toast.success(voteType === 'up' ? 'Terima kasih atas verifikasinya!' : 'Feedback Anda telah dicatat');
-        }
+      if (error && error.code !== 'PGRST116') {
+        console.error('Error checking vote:', error);
+        return;
+      }
+
+      if (data) {
+        setUserVote(data.vote_type as 'up' | 'down');
       }
     } catch (error) {
-      console.error('Error voting:', error);
-      toast.error('Gagal memberikan suara. Silakan coba lagi.');
-    } finally {
-      setIsVoting(false);
+      console.error('Error checking vote:', error);
     }
   };
 
-  const scoreColor = trustScore > 0 ? 'text-green-600' : trustScore < 0 ? 'text-red-600' : 'text-gray-600';
+  const handleVote = async (type: 'up' | 'down') => {
+    if (!user) {
+      setShowAuthModal(true);
+      return;
+    }
+
+    if (isLoading) return;
+    setIsLoading(true);
+
+    try {
+      const { data, error } = await supabase.rpc('handle_vote', {
+        p_report_id: reportId,
+        p_user_id: user.id,
+        p_vote_type: type
+      });
+
+      if (error) throw error;
+
+      if (data) {
+        setUserVote(data.vote_type);
+        setTrustScore(data.new_trust_score);
+        if (onVoteChange) onVoteChange(data.new_trust_score);
+      }
+    } catch (error) {
+      console.error('Error voting:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   return (
-    <div className="mt-3 pt-3 border-t border-gray-200">
-      <div className="flex items-center justify-between mb-2">
-        <span className="text-xs font-medium text-gray-600">Verifikasi Komunitas:</span>
-        <span className={`text-sm font-bold ${scoreColor}`}>
+    <>
+      <div className="flex items-center gap-2 bg-gray-50 rounded-lg p-1">
+        <button
+          onClick={() => handleVote('up')}
+          disabled={isLoading}
+          className={`p-1.5 rounded-md transition-colors ${userVote === 'up'
+              ? 'bg-green-100 text-green-700'
+              : 'hover:bg-gray-200 text-gray-500'
+            }`}
+          title="Upvote (Laporan Akurat)"
+        >
+          <ThumbsUp className={`w-4 h-4 ${userVote === 'up' ? 'fill-current' : ''}`} />
+        </button>
+
+        <span className={`text-sm font-bold min-w-[20px] text-center ${trustScore > 0 ? 'text-green-600' : trustScore < 0 ? 'text-red-600' : 'text-gray-600'
+          }`}>
           {trustScore > 0 ? '+' : ''}{trustScore}
         </span>
-      </div>
-      <div className="flex gap-2">
+
         <button
-          onClick={() => handleVoteClick('up')}
-          disabled={isVoting}
-          className="flex-1 flex items-center justify-center gap-1 px-3 py-2 bg-green-50 hover:bg-green-100 text-green-700 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm font-medium"
-          aria-label="Tandai laporan ini sebagai valid"
-          title="Laporan ini valid"
+          onClick={() => handleVote('down')}
+          disabled={isLoading}
+          className={`p-1.5 rounded-md transition-colors ${userVote === 'down'
+              ? 'bg-red-100 text-red-700'
+              : 'hover:bg-gray-200 text-gray-500'
+            }`}
+          title="Downvote (Laporan Palsu/Tidak Akurat)"
         >
-          <ThumbsUp className="w-4 h-4" />
-          Valid
-        </button>
-        <button
-          onClick={() => handleVoteClick('down')}
-          disabled={isVoting}
-          className="flex-1 flex items-center justify-center gap-1 px-3 py-2 bg-red-50 hover:bg-red-100 text-red-700 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm font-medium"
-          aria-label="Tandai laporan ini sebagai palsu atau tidak relevan"
-          title="Laporan ini palsu atau sudah tidak relevan"
-        >
-          <ThumbsDown className="w-4 h-4" />
-          Fake
+          <ThumbsDown className={`w-4 h-4 ${userVote === 'down' ? 'fill-current' : ''}`} />
         </button>
       </div>
-    </div>
+
+      <AuthModal
+        isOpen={showAuthModal}
+        onClose={() => setShowAuthModal(false)}
+        defaultTab="login"
+      />
+    </>
   );
 }

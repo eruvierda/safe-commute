@@ -1,12 +1,14 @@
-const USER_ID_KEY = 'safecommute_user_id';
+import { supabase } from '../supabaseClient';
 
-export function getUserId(): string {
-  let userId = localStorage.getItem(USER_ID_KEY);
+export async function getUserId(): Promise<string | null> {
+  const { data: { user } } = await supabase.auth.getUser();
+  return user?.id || null;
+}
 
+export async function requireAuth(): Promise<string> {
+  const userId = await getUserId();
   if (!userId) {
-    userId = crypto.randomUUID();
-    localStorage.setItem(USER_ID_KEY, userId);
+    throw new Error('Authentication required');
   }
-
   return userId;
 }

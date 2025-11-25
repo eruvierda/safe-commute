@@ -1,20 +1,26 @@
 import { useState } from 'react';
-import { X } from 'lucide-react';
+import { X, MapPin, AlertTriangle, Loader2 } from 'lucide-react';
+import { useAuth } from '../contexts/AuthContext';
+import { AuthModal } from './Auth/AuthModal';
 import { REPORT_TYPES, ReportType } from '../types';
 import { validateDescription } from '../utils/validation';
 
 interface ReportModalProps {
+  isOpen: boolean;
   onClose: () => void;
   onSubmit: (type: ReportType, description: string) => void;
-  latitude: number;
-  longitude: number;
+  userLocation: { latitude: number; longitude: number } | null;
 }
 
-export function ReportModal({ onClose, onSubmit, latitude, longitude }: ReportModalProps) {
-  const [type, setType] = useState<ReportType>('banjir');
+export function ReportModal({ isOpen, onClose, onSubmit, userLocation }: ReportModalProps) {
+  const { user } = useAuth();
+  const [selectedType, setSelectedType] = useState<ReportType | null>(null);
   const [description, setDescription] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [descriptionError, setDescriptionError] = useState<string | null>(null);
+  const [showAuthModal, setShowAuthModal] = useState(false);
+
+  if (!isOpen) return null;
 
   const handleDescriptionChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const value = e.target.value;
@@ -28,6 +34,16 @@ export function ReportModal({ onClose, onSubmit, latitude, longitude }: ReportMo
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    if (!selectedType || !userLocation) {
+      // Optionally set an error for type or location if they are not selected/available
+      return;
+    }
+
+    if (!user) {
+      setShowAuthModal(true);
+      return;
+    }
+
     // Final validation before submit
     const validation = validateDescription(description);
     if (!validation.valid) {
@@ -36,7 +52,7 @@ export function ReportModal({ onClose, onSubmit, latitude, longitude }: ReportMo
     }
 
     setIsSubmitting(true);
-    await onSubmit(type, description);
+    await onSubmit(selectedType, description);
     setIsSubmitting(false);
   };
 
@@ -59,9 +75,10 @@ export function ReportModal({ onClose, onSubmit, latitude, longitude }: ReportMo
         </div>
 
         <form onSubmit={handleSubmit} className="p-6 space-y-5">
-          <div className="bg-gray-50 p-3 rounded-lg text-sm text-gray-600">
+          <div className="bg-gray-50 p-3 rounded-lg text-sm text-gray-600 flex items-center gap-2">
+            <MapPin className="w-4 h-4 text-gray-500" />
             <p className="font-medium">Lokasi:</p>
-            <p>{latitude.toFixed(6)}, {longitude.toFixed(6)}</p>
+            <p>{userLocation ? `${userLocation.latitude.toFixed(6)}, ${userLocation.longitude.toFixed(6)}` : 'Lokasi tidak tersedia'}</p>
           </div>
 
           <div>
@@ -70,11 +87,12 @@ export function ReportModal({ onClose, onSubmit, latitude, longitude }: ReportMo
             </label>
             <select
               id="type"
-              value={type}
-              onChange={(e) => setType(e.target.value as ReportType)}
+              value={selectedType || ''}
+              onChange={(e) => setSelectedType(e.target.value as ReportType)}
               className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-base"
               required
             >
+              <option value="" disabled>Pilih jenis bahaya</option>
               {REPORT_TYPES.map((reportType) => (
                 <option key={reportType.value} value={reportType.value}>
                   {reportType.label}
@@ -99,7 +117,7 @@ export function ReportModal({ onClose, onSubmit, latitude, longitude }: ReportMo
             />
             <div className="mt-1 flex justify-between items-center">
               {descriptionError ? (
-                <p className="text-sm text-red-600">{descriptionError}</p>
+                <p className="text-sm text-red-600 flex items-center gap-1"><AlertTriangle className="w-4 h-4" />{descriptionError}</p>
               ) : (
                 <span className="text-sm text-gray-500">Maksimal {maxChars} karakter</span>
               )}
@@ -120,14 +138,26 @@ export function ReportModal({ onClose, onSubmit, latitude, longitude }: ReportMo
             </button>
             <button
               type="submit"
-              disabled={isSubmitting || !!descriptionError}
-              className="flex-1 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+              disabled={isSubmitting || !!descriptionError || !selectedType || !userLocation}
+              className="flex-1 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
             >
-              {isSubmitting ? 'Mengirim...' : 'Kirim Laporan'}
+              {isSubmitting ? (
+                <>
+                  <Loader2 className="w-5 h-5 animate-spin" /> Mengirim...
+                </>
+              ) : (
+                'Kirim Laporan'
+              )}
             </button>
           </div>
         </form>
       </div>
+
+      <AuthModal
+        isOpen={showAuthModal}
+        onClose={() => setShowAuthModal(false)}
+        defaultTab="login"
+      />
     </div>
   );
 }
