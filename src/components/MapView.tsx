@@ -384,7 +384,7 @@ export function MapView() {
                   <VoteButtons
                     reportId={report.id}
                     initialTrustScore={currentTrustScore}
-                    onVoteSuccess={(newScore) => handleVoteSuccess(report.id, newScore)}
+                    onVoteChange={(newScore) => handleVoteSuccess(report.id, newScore)}
                   />
                 </div>
               </Popup>
@@ -414,10 +414,10 @@ export function MapView() {
 
       {showModal && selectedLocation && (
         <ReportModal
+          isOpen={true}
           onClose={handleModalClose}
           onSubmit={handleReportSubmit}
-          latitude={selectedLocation.lat}
-          longitude={selectedLocation.lng}
+          userLocation={{ latitude: selectedLocation.lat, longitude: selectedLocation.lng }}
         />
       )}
 
