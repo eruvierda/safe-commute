@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { ThumbsUp, ThumbsDown } from 'lucide-react';
+import toast from 'react-hot-toast';
 import { handleVote } from '../supabaseClient';
 import { getUserId } from '../utils/userId';
 
@@ -22,10 +23,13 @@ export function VoteButtons({ reportId, initialTrustScore, onVoteSuccess }: Vote
       if (result.success) {
         setTrustScore(result.trust_score);
         onVoteSuccess(result.trust_score);
+        if (result.changed) {
+          toast.success(voteType === 'up' ? 'Terima kasih atas verifikasinya!' : 'Feedback Anda telah dicatat');
+        }
       }
     } catch (error) {
       console.error('Error voting:', error);
-      alert('Gagal memberikan suara. Silakan coba lagi.');
+      toast.error('Gagal memberikan suara. Silakan coba lagi.');
     } finally {
       setIsVoting(false);
     }
@@ -46,6 +50,7 @@ export function VoteButtons({ reportId, initialTrustScore, onVoteSuccess }: Vote
           onClick={() => handleVoteClick('up')}
           disabled={isVoting}
           className="flex-1 flex items-center justify-center gap-1 px-3 py-2 bg-green-50 hover:bg-green-100 text-green-700 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm font-medium"
+          aria-label="Tandai laporan ini sebagai valid"
           title="Laporan ini valid"
         >
           <ThumbsUp className="w-4 h-4" />
@@ -55,6 +60,7 @@ export function VoteButtons({ reportId, initialTrustScore, onVoteSuccess }: Vote
           onClick={() => handleVoteClick('down')}
           disabled={isVoting}
           className="flex-1 flex items-center justify-center gap-1 px-3 py-2 bg-red-50 hover:bg-red-100 text-red-700 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm font-medium"
+          aria-label="Tandai laporan ini sebagai palsu atau tidak relevan"
           title="Laporan ini palsu atau sudah tidak relevan"
         >
           <ThumbsDown className="w-4 h-4" />
