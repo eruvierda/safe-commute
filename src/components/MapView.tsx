@@ -9,7 +9,7 @@ import { Menu } from './Menu';
 import { WarningSystem } from './WarningSystem';
 import { UserProfile } from './UserProfile';
 import { REPORT_TYPES, ReportType } from '../types';
-import { getUserId } from '../utils/userId';
+import { useAuth } from '../contexts/AuthContext';
 import 'leaflet/dist/leaflet.css';
 
 const DEFAULT_CENTER: LatLngTuple = [-6.597, 106.799];
@@ -102,6 +102,7 @@ function LocateMeButton() {
 }
 
 export function MapView() {
+  const { user } = useAuth();
   const [reports, setReports] = useState<Report[]>([]);
   const [reportTrustScores, setReportTrustScores] = useState<Record<string, number>>({});
   const [isPinMode, setIsPinMode] = useState(false);
@@ -254,7 +255,7 @@ export function MapView() {
         description: description || null,
         latitude: selectedLocation.lat,
         longitude: selectedLocation.lng,
-        user_id: getUserId(),
+        user_id: user?.id,
       },
     ]).select().single();
 
