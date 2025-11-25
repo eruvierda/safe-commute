@@ -332,7 +332,7 @@ export function MapView() {
         className={`w-full h-full ${isPinMode ? 'cursor-pin' : ''}`}
         zoomControl={false}
       >
-        <ZoomControl position="topleft" />
+        <ZoomControl position="topright" />
         <TileLayer
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
