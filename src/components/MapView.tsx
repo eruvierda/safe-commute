@@ -93,7 +93,7 @@ function LocateMeButton() {
     <button
       onClick={handleLocateMe}
       disabled={isLocating}
-      className="absolute top-80 right-4 z-[999] bg-white p-3 rounded-lg shadow-lg hover:bg-gray-50 transition-colors disabled:opacity-50"
+      className="absolute top-20 right-4 z-[999] bg-white p-3 rounded-lg shadow-lg hover:bg-gray-50 transition-colors disabled:opacity-50"
       aria-label="Locate me"
       title="Temukan Lokasi Saya"
     >
