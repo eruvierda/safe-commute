@@ -1,4 +1,5 @@
 import { createClient } from '@supabase/supabase-js';
+import type { Report, VoteResult } from './types';
 
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
@@ -9,28 +10,8 @@ if (!supabaseUrl || !supabaseAnonKey) {
 
 export const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
-export type ReportType = 'banjir' | 'macet' | 'kriminal' | 'jalan_rusak' | 'lampu_mati';
-
-export interface Report {
-  id: string;
-  created_at: string;
-  type: ReportType;
-  description: string | null;
-  latitude: number;
-  longitude: number;
-  is_resolved: boolean;
-  trust_score: number;
-  last_confirmed_at: string;
-}
-
-export interface VoteResult {
-  success: boolean;
-  message: string;
-  trust_score: number;
-  up_count?: number;
-  down_count?: number;
-  changed: boolean;
-}
+// Re-export types for convenience
+export type { Report, VoteResult } from './types';
 
 export async function handleVote(
   reportId: string,

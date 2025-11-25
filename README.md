@@ -47,11 +47,20 @@ The application is ready to use. The database has been configured with:
 reports
 ├── id (uuid, primary key)
 ├── created_at (timestamptz)
-├── type (text enum)
+├── type (text enum: banjir, macet, kriminal, jalan_rusak, lampu_mati)
 ├── description (text, nullable)
 ├── latitude (float8)
 ├── longitude (float8)
-└── is_resolved (boolean)
+├── is_resolved (boolean)
+├── trust_score (integer, default 0)
+└── last_confirmed_at (timestamptz)
+
+votes
+├── report_id (uuid, foreign key to reports)
+├── user_id (uuid)
+├── vote_type (text: 'up' or 'down')
+├── created_at (timestamptz)
+└── PRIMARY KEY (report_id, user_id)
 ```
 
 ## Environment Variables

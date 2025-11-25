@@ -8,6 +8,17 @@ export interface Report {
   latitude: number;
   longitude: number;
   is_resolved: boolean;
+  trust_score: number;
+  last_confirmed_at: string;
+}
+
+export interface VoteResult {
+  success: boolean;
+  message: string;
+  trust_score: number;
+  up_count?: number;
+  down_count?: number;
+  changed: boolean;
 }
 
 export const REPORT_TYPES: { value: ReportType; label: string; color: string }[] = [

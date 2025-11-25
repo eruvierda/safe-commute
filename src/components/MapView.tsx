@@ -1,10 +1,12 @@
 import { useEffect, useState, useCallback, useRef } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, useMapEvents, useMap } from 'react-leaflet';
 import { Icon, LatLngTuple } from 'leaflet';
-import { Navigation, Plus, MapPin, Star } from 'lucide-react';
+import { Navigation, Plus, MapPin, Star, Menu as MenuIcon } from 'lucide-react';
 import { supabase, Report, getActiveReports } from '../supabaseClient';
 import { ReportModal } from './ReportModal';
 import { VoteButtons } from './VoteButtons';
+import { Menu } from './Menu';
+import { WarningSystem } from './WarningSystem';
 import { REPORT_TYPES, ReportType } from '../types';
 import 'leaflet/dist/leaflet.css';
 
@@ -64,20 +66,38 @@ export function MapView() {
   const [isPinMode, setIsPinMode] = useState(false);
   const [selectedLocation, setSelectedLocation] = useState<{ lat: number; lng: number } | null>(null);
   const [showModal, setShowModal] = useState(false);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
+  const [warningRadius, setWarningRadius] = useState(2); // Default 2km
+  const [isWarningEnabled, setIsWarningEnabled] = useState(false);
+  const [enabledHazardTypes, setEnabledHazardTypes] = useState<Set<ReportType>>(
+    new Set(REPORT_TYPES.map(rt => rt.value))
+  );
+  const watchIdRef = useRef<number | null>(null);
 
   const iconCache = useRef(new Map<string, Icon>());
 
-  const createCustomIcon = useCallback((color: string, verified: boolean = false): Icon => {
+  const CATEGORY_ICONS: Record<ReportType, string> = {
+    banjir: 'M12 22c4.97 0 9-4.03 9-9-4.5 0-4.5-5-9-5s-4.5 5-9 5c0 4.97 4.03 9 9 9z', // Water drop/wave
+    macet: 'M18.92 6.01C18.72 5.42 18.16 5 17.5 5h-11c-.66 0-1.21.42-1.42 1.01L3 12v8c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h12v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-8l-2.08-5.99zM6.5 16c-.83 0-1.5-.67-1.5-1.5S5.67 13 6.5 13s1.5.67 1.5 1.5S7.33 16 6.5 16zm11 0c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zM5 11l1.5-4.5h11L19 11H5z', // Car
+    kriminal: 'M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 6c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 10c-2.33 0-4.31-1.46-5.11-3.5h10.22c-.8 2.04-2.78 3.5-5.11 3.5z', // Shield/Person
+    jalan_rusak: 'M12 2L1 21h22L12 2zm0 3.45l8.43 14.55H3.57L12 5.45z M11 10h2v6h-2zm0 8h2v2h-2z', // Warning/Cone-ish
+    lampu_mati: 'M9 21c0 .55.45 1 1 1h4c.55 0 1-.45 1-1v-1H9v1zm3-19C8.14 2 5 5.14 5 9c0 2.38 1.19 4.47 3 5.74V17c0 .55.45 1 1 1h6c.55 0 1-.45 1-1v-2.26c1.81-1.27 3-3.36 3-5.74 0-3.86-3.14-7-7-7zm2.85 11.1l-.85.6V16h-4v-2.3l-.85-.6C7.8 12.16 7 10.63 7 9c0-2.76 2.24-5 5-5s5 2.24 5 5c0 1.63-.8 3.16-2.15 4.1z', // Lightbulb
+  };
+
+  const createCustomIcon = useCallback((color: string, iconPath: string, verified: boolean = false): Icon => {
     const svgIcon = verified ? `
       <svg width="36" height="46" viewBox="0 0 36 46" xmlns="http://www.w3.org/2000/svg">
         <path d="M18 0C9.163 0 2 7.163 2 16c0 12 16 26 16 26s16-14 16-26c0-8.837-7.163-16-16-16z" fill="${color}" stroke="#FFD700" stroke-width="3"/>
-        <circle cx="18" cy="16" r="6" fill="white"/>
-        <path d="M18 10l1.5 3 3.5 0.5-2.5 2.5 0.5 3.5-3-1.5-3 1.5 0.5-3.5-2.5-2.5 3.5-0.5z" fill="#FFD700"/>
+        <circle cx="18" cy="16" r="8" fill="white" opacity="0.2"/>
+        <path d="${iconPath}" transform="translate(9, 7) scale(0.75)" fill="white"/>
+        <path d="M18 10l1.5 3 3.5 0.5-2.5 2.5 0.5 3.5-3-1.5-3 1.5 0.5-3.5-2.5-2.5 3.5-0.5z" fill="#FFD700" transform="translate(10, -12)"/>
       </svg>
     ` : `
       <svg width="32" height="42" viewBox="0 0 32 42" xmlns="http://www.w3.org/2000/svg">
         <path d="M16 0C7.163 0 0 7.163 0 16c0 12 16 26 16 26s16-14 16-26c0-8.837-7.163-16-16-16z" fill="${color}"/>
-        <circle cx="16" cy="16" r="6" fill="white"/>
+        <circle cx="16" cy="16" r="8" fill="white" opacity="0.2"/>
+        <path d="${iconPath}" transform="translate(7, 7) scale(0.75)" fill="white"/>
       </svg>
     `;
 
@@ -96,7 +116,8 @@ export function MapView() {
     if (!iconCache.current.has(cacheKey)) {
       const reportType = REPORT_TYPES.find(rt => rt.value === type);
       const color = reportType?.color || '#6B7280';
-      iconCache.current.set(cacheKey, createCustomIcon(color, verified));
+      const iconPath = CATEGORY_ICONS[type];
+      iconCache.current.set(cacheKey, createCustomIcon(color, iconPath, verified));
     }
     return iconCache.current.get(cacheKey)!;
   }, [createCustomIcon]);
@@ -115,6 +136,45 @@ export function MapView() {
       subscription.unsubscribe();
     };
   }, []);
+
+  // Continuous location tracking for warning system
+  useEffect(() => {
+    if (isWarningEnabled && 'geolocation' in navigator) {
+      // Start watching position
+      watchIdRef.current = navigator.geolocation.watchPosition(
+        (position) => {
+          setUserLocation({
+            lat: position.coords.latitude,
+            lng: position.coords.longitude,
+          });
+        },
+        (error) => {
+          console.error('Error watching location:', error);
+          setUserLocation(null);
+        },
+        {
+          enableHighAccuracy: true,
+          maximumAge: 30000, // Accept cached position up to 30 seconds old
+          timeout: 10000, // Timeout after 10 seconds
+        }
+      );
+    } else {
+      // Stop watching position
+      if (watchIdRef.current !== null) {
+        navigator.geolocation.clearWatch(watchIdRef.current);
+        watchIdRef.current = null;
+      }
+      if (!isWarningEnabled) {
+        setUserLocation(null);
+      }
+    }
+
+    return () => {
+      if (watchIdRef.current !== null) {
+        navigator.geolocation.clearWatch(watchIdRef.current);
+      }
+    };
+  }, [isWarningEnabled]);
 
   const fetchReports = async () => {
     try {
@@ -199,6 +259,23 @@ export function MapView() {
     return date.toLocaleDateString('id-ID');
   };
 
+  const handleHazardTypeToggle = (type: ReportType) => {
+    setEnabledHazardTypes((prev) => {
+      const newSet = new Set(prev);
+      if (newSet.has(type)) {
+        newSet.delete(type);
+      } else {
+        newSet.add(type);
+      }
+      return newSet;
+    });
+  };
+
+  // Filter reports based on enabled hazard types
+  const filteredReports = reports.filter((report) =>
+    enabledHazardTypes.has(report.type)
+  );
+
   return (
     <div className="relative w-full h-screen">
       <MapContainer
@@ -214,8 +291,18 @@ export function MapView() {
 
         <LocationMarker onLocationSelect={handleLocationSelect} />
         <LocateMeButton />
+        
+        {/* Menu Button */}
+        <button
+          onClick={() => setIsMenuOpen(true)}
+          className="absolute top-4 left-4 z-[999] bg-white p-3 rounded-lg shadow-lg hover:bg-gray-50 transition-colors"
+          aria-label="Open menu"
+          title="Menu"
+        >
+          <MenuIcon className="w-6 h-6 text-blue-600" />
+        </button>
 
-        {reports.map((report) => {
+        {filteredReports.map((report) => {
           const currentTrustScore = reportTrustScores[report.id] ?? report.trust_score;
           const isVerified = currentTrustScore > 5;
 
@@ -290,6 +377,27 @@ export function MapView() {
           longitude={selectedLocation.lng}
         />
       )}
+
+      {/* Menu */}
+      <Menu
+        isOpen={isMenuOpen}
+        onClose={() => setIsMenuOpen(false)}
+        warningRadius={warningRadius}
+        onWarningRadiusChange={setWarningRadius}
+        enabledHazardTypes={enabledHazardTypes}
+        onHazardTypeToggle={handleHazardTypeToggle}
+        isWarningEnabled={isWarningEnabled}
+        onWarningToggle={setIsWarningEnabled}
+      />
+
+      {/* Warning System */}
+      <WarningSystem
+        isEnabled={isWarningEnabled}
+        warningRadius={warningRadius}
+        userLocation={userLocation}
+        reports={reports}
+        enabledHazardTypes={enabledHazardTypes}
+      />
     </div>
   );
 }
