@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback, useRef } from 'react';
-import { MapContainer, TileLayer, Marker, Popup, useMapEvents, useMap } from 'react-leaflet';
+import { MapContainer, TileLayer, Marker, Popup, useMapEvents, useMap, ZoomControl } from 'react-leaflet';
 import { Icon, LatLngTuple } from 'leaflet';
 import { Navigation, Plus, MapPin, Star, Menu as MenuIcon } from 'lucide-react';
 import { supabase, Report, getActiveReports } from '../supabaseClient';
@@ -7,6 +7,7 @@ import { ReportModal } from './ReportModal';
 import { VoteButtons } from './VoteButtons';
 import { Menu } from './Menu';
 import { WarningSystem } from './WarningSystem';
+import { WarningControls } from './WarningControls';
 import { UserProfile } from './UserProfile';
 import { REPORT_TYPES, ReportType } from '../types';
 import { useAuth } from '../contexts/AuthContext';
@@ -331,6 +332,7 @@ export function MapView() {
         className={`w-full h-full ${isPinMode ? 'cursor-pin' : ''}`}
         zoomControl={false}
       >
+        <ZoomControl position="topleft" />
         <TileLayer
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
@@ -427,16 +429,18 @@ export function MapView() {
         })}
       </MapContainer>
 
-      <button
-        onClick={handleFabClick}
-        disabled={isPinMode}
-        className={`absolute bottom-8 left-1/2 -translate-x-1/2 z-[999] bg-blue-600 text-white p-4 rounded-full shadow-2xl hover:bg-blue-700 transition-all transform hover:scale-110 disabled:opacity-50 disabled:cursor-not-allowed ${isPinMode ? 'animate-pulse' : ''
-          }`}
-        aria-label="Add report"
-        title="Tambah Laporan"
-      >
-        {isPinMode ? <MapPin className="w-7 h-7" /> : <Plus className="w-7 h-7" />}
-      </button>
+      {user && (
+        <button
+          onClick={handleFabClick}
+          disabled={isPinMode}
+          className={`absolute bottom-8 left-1/2 -translate-x-1/2 z-[999] bg-blue-600 text-white p-4 rounded-full shadow-2xl hover:bg-blue-700 transition-all transform hover:scale-110 disabled:opacity-50 disabled:cursor-not-allowed ${isPinMode ? 'animate-pulse' : ''
+            }`}
+          aria-label="Add report"
+          title="Tambah Laporan"
+        >
+          {isPinMode ? <MapPin className="w-7 h-7" /> : <Plus className="w-7 h-7" />}
+        </button>
+      )}
 
       {isPinMode && (
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-[998] pointer-events-none">
@@ -459,12 +463,6 @@ export function MapView() {
       <Menu
         isOpen={isMenuOpen}
         onClose={() => setIsMenuOpen(false)}
-        warningRadius={warningRadius}
-        onWarningRadiusChange={setWarningRadius}
-        enabledHazardTypes={enabledHazardTypes}
-        onHazardTypeToggle={handleHazardTypeToggle}
-        isWarningEnabled={isWarningEnabled}
-        onWarningToggle={setIsWarningEnabled}
         onOpenProfile={() => setIsProfileOpen(true)}
       />
 
@@ -482,6 +480,16 @@ export function MapView() {
         userLocation={userLocation}
         reports={reports}
         enabledHazardTypes={enabledHazardTypes}
+      />
+
+      {/* Warning Controls */}
+      <WarningControls
+        warningRadius={warningRadius}
+        onWarningRadiusChange={setWarningRadius}
+        enabledHazardTypes={enabledHazardTypes}
+        onHazardTypeToggle={handleHazardTypeToggle}
+        isWarningEnabled={isWarningEnabled}
+        onWarningToggle={setIsWarningEnabled}
       />
     </div>
   );
