@@ -347,7 +347,7 @@ export function MapView() {
             icon={new Icon({
               iconUrl: `data:image/svg+xml;base64,${btoa(`
                 <svg width="40" height="40" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg">
-                  <circle cx="20" cy="20" r="18" fill="#3B82F6" stroke="white" stroke-width="3" opacity="0.9"/>
+                  <circle cx="20" cy="20" r="18" fill="#3B82F6" stroke="white" stroke-width="1" opacity="0.6"/>
                   <circle cx="20" cy="20" r="8" fill="white"/>
                   <path d="M14 24 Q20 30 26 24" stroke="white" stroke-width="2" fill="none" stroke-linecap="round"/>
                   <circle cx="16" cy="16" r="2" fill="#1E40AF"/>
