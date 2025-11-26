@@ -93,11 +93,11 @@ function LocateMeButton() {
     <button
       onClick={handleLocateMe}
       disabled={isLocating}
-      className="absolute top-20 right-4 z-[999] bg-white p-3 rounded-lg shadow-lg hover:bg-gray-50 transition-colors disabled:opacity-50"
+      className="absolute top-20 right-4 z-[999] bg-white p-2 sm:p-3 rounded-lg shadow-lg hover:bg-gray-50 transition-colors disabled:opacity-50"
       aria-label="Locate me"
       title="Temukan Lokasi Saya"
     >
-      <Navigation className={`w-6 h-6 text-blue-600 ${isLocating ? 'animate-pulse' : ''}`} />
+      <Navigation className={`w-5 h-5 sm:w-6 sm:h-6 text-blue-600 ${isLocating ? 'animate-pulse' : ''}`} />
     </button>
   );
 }
@@ -374,11 +374,11 @@ export function MapView() {
         {/* Menu Button */}
         <button
           onClick={() => setIsMenuOpen(true)}
-          className="absolute top-4 left-4 z-[999] bg-white p-3 rounded-lg shadow-lg hover:bg-gray-50 transition-colors"
+          className="absolute top-4 left-4 z-[999] bg-white p-2 sm:p-3 rounded-lg shadow-lg hover:bg-gray-50 transition-colors"
           aria-label="Open menu"
           title="Menu"
         >
-          <MenuIcon className="w-6 h-6 text-blue-600" />
+          <MenuIcon className="w-5 h-5 sm:w-6 sm:h-6 text-blue-600" />
         </button>
 
         {filteredReports.map((report) => {
@@ -433,12 +433,12 @@ export function MapView() {
         <button
           onClick={handleFabClick}
           disabled={isPinMode}
-          className={`absolute bottom-8 left-1/2 -translate-x-1/2 z-[999] bg-blue-600 text-white p-4 rounded-full shadow-2xl hover:bg-blue-700 transition-all transform hover:scale-110 disabled:opacity-50 disabled:cursor-not-allowed ${isPinMode ? 'animate-pulse' : ''
+          className={`absolute bottom-8 left-1/2 -translate-x-1/2 z-[999] bg-blue-600 text-white p-3 sm:p-4 rounded-full shadow-2xl hover:bg-blue-700 transition-all transform hover:scale-110 disabled:opacity-50 disabled:cursor-not-allowed ${isPinMode ? 'animate-pulse' : ''
             }`}
           aria-label="Add report"
           title="Tambah Laporan"
         >
-          {isPinMode ? <MapPin className="w-7 h-7" /> : <Plus className="w-7 h-7" />}
+          {isPinMode ? <MapPin className="w-6 h-6 sm:w-7 sm:h-7" /> : <Plus className="w-6 h-6 sm:w-7 sm:h-7" />}
         </button>
       )}
 
