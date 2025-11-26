@@ -1,4 +1,5 @@
-import { Bell, Filter } from 'lucide-react';
+import { Bell, Filter, ChevronDown, ChevronUp } from 'lucide-react';
+import { useState } from 'react';
 import { REPORT_TYPES, ReportType } from '../types';
 
 interface WarningControlsProps {
@@ -10,6 +11,10 @@ interface WarningControlsProps {
     onWarningToggle: (enabled: boolean) => void;
 }
 
+
+
+
+
 export function WarningControls({
     warningRadius,
     onWarningRadiusChange,
@@ -18,27 +23,39 @@ export function WarningControls({
     isWarningEnabled,
     onWarningToggle,
 }: WarningControlsProps) {
+    const [isExpanded, setIsExpanded] = useState(false);
+
     return (
-        <div className="absolute bottom-8 left-4 z-[999] bg-white/90 backdrop-blur-sm p-4 rounded-lg shadow-lg border border-gray-200 w-72 max-h-[60vh] overflow-y-auto">
+        <div className={`absolute bottom-24 sm:bottom-8 left-4 z-[999] bg-white/90 backdrop-blur-sm rounded-lg shadow-lg border border-gray-200 transition-all duration-300 ${isExpanded ? 'w-72 p-4 max-h-[60vh] overflow-y-auto' : 'w-auto p-2'}`}>
             {/* Warning System Toggle */}
-            <div className="flex items-center justify-between mb-4">
-                <div className="flex items-center gap-2">
+            <div className="flex items-center justify-between gap-2">
+                <div
+                    className="flex items-center gap-2 cursor-pointer"
+                    onClick={() => setIsExpanded(!isExpanded)}
+                >
                     <Bell className={`w-5 h-5 ${isWarningEnabled ? 'text-blue-600' : 'text-gray-400'}`} />
-                    <span className="font-semibold text-gray-900">Peringatan</span>
+                    {isExpanded && <span className="font-semibold text-gray-900">Peringatan</span>}
                 </div>
-                <label className="relative inline-flex items-center cursor-pointer">
-                    <input
-                        type="checkbox"
-                        className="sr-only peer"
-                        checked={isWarningEnabled}
-                        onChange={(e) => onWarningToggle(e.target.checked)}
-                    />
-                    <div className="w-9 h-5 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-blue-600"></div>
-                </label>
+
+                {isExpanded ? (
+                    <label className="relative inline-flex items-center cursor-pointer">
+                        <input
+                            type="checkbox"
+                            className="sr-only peer"
+                            checked={isWarningEnabled}
+                            onChange={(e) => onWarningToggle(e.target.checked)}
+                        />
+                        <div className="w-9 h-5 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-blue-600"></div>
+                    </label>
+                ) : (
+                    <button onClick={() => setIsExpanded(true)}>
+                        <ChevronUp className="w-4 h-4 text-gray-500" />
+                    </button>
+                )}
             </div>
 
-            {isWarningEnabled && (
-                <div className="space-y-4 animate-in slide-in-from-bottom-2 duration-200">
+            {isExpanded && isWarningEnabled && (
+                <div className="space-y-4 animate-in slide-in-from-bottom-2 duration-200 mt-4">
                     {/* Radius Slider */}
                     <div>
                         <label className="text-xs font-medium text-gray-700 mb-1 block">
@@ -93,6 +110,14 @@ export function WarningControls({
                             })}
                         </div>
                     </div>
+                </div>
+            )}
+
+            {isExpanded && (
+                <div className="flex justify-center mt-2 pt-2 border-t border-gray-100">
+                    <button onClick={() => setIsExpanded(false)}>
+                        <ChevronDown className="w-4 h-4 text-gray-400 hover:text-gray-600" />
+                    </button>
                 </div>
             )}
         </div>
