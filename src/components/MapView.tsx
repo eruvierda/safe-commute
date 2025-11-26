@@ -346,7 +346,7 @@ export function MapView() {
             position={[userLocation.lat, userLocation.lng]}
             icon={new Icon({
               iconUrl: `data:image/svg+xml;base64,${btoa(`
-                <svg width="40" height="40" viewBox="0 0 20 40" xmlns="http://www.w3.org/2000/svg">
+                <svg width="20" height="30" viewBox="0 0 20 30" xmlns="http://www.w3.org/2000/svg">
                   <circle cx="20" cy="20" r="18" fill="#3B82F6" stroke="white" stroke-width="1" opacity="0.9"/>
                   <circle cx="20" cy="20" r="8" fill="white"/>
                   <path d="M14 24 Q20 30 26 24" stroke="white" stroke-width="1" fill="none" stroke-linecap="round"/>
