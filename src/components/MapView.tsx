@@ -1,5 +1,6 @@
 import { useEffect, useState, useCallback, useRef } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, useMapEvents, useMap, ZoomControl } from 'react-leaflet';
+import MarkerClusterGroup from 'react-leaflet-cluster';
 import { Icon, LatLngTuple } from 'leaflet';
 import { Navigation, Plus, MapPin, Star, Menu as MenuIcon } from 'lucide-react';
 import toast from 'react-hot-toast';
@@ -415,52 +416,87 @@ export function MapView() {
           <MenuIcon className="w-5 h-5 sm:w-6 sm:h-6 text-blue-600" />
         </button>
 
-        {filteredReports.map((report) => {
-          const currentTrustScore = reportTrustScores[report.id] ?? report.trust_score;
-          const isVerified = currentTrustScore > 5;
+        <MarkerClusterGroup
+          chunkedLoading
+          maxClusterRadius={60}
+          spiderfyOnMaxZoom={true}
+          showCoverageOnHover={false}
+          zoomToBoundsOnClick={true}
+          iconCreateFunction={(cluster) => {
+            const count = cluster.getChildCount();
+            let size = 'small';
+            let sizeClass = 'w-10 h-10 text-sm';
 
-          return (
-            <Marker
-              key={report.id}
-              position={[report.latitude, report.longitude]}
-              icon={getIconForType(report.type, currentTrustScore)}
-            >
-              <Popup>
-                <div className="p-2 min-w-[240px]">
-                  <div className="flex items-center gap-2 mb-2">
-                    <div
-                      className="w-3 h-3 rounded-full"
-                      style={{ backgroundColor: REPORT_TYPES.find(rt => rt.value === report.type)?.color }}
-                    />
-                    <h3 className="font-semibold text-gray-900 flex-1">
-                      {REPORT_TYPES.find((rt) => rt.value === report.type)?.label}
-                    </h3>
-                    {isVerified && (
-                      <span className="flex items-center gap-1 px-2 py-0.5 bg-yellow-100 text-yellow-800 text-xs rounded-full font-medium">
-                        <Star className="w-3 h-3 fill-current" />
-                        Terverifikasi
+            if (count > 50) {
+              size = 'large';
+              sizeClass = 'w-14 h-14 text-lg';
+            } else if (count > 10) {
+              size = 'medium';
+              sizeClass = 'w-12 h-12 text-base';
+            }
+
+            return new Icon({
+              iconUrl: `data:image/svg+xml;base64,${btoa(`
+                <svg width="56" height="56" viewBox="0 0 56 56" xmlns="http://www.w3.org/2000/svg">
+                  <circle cx="28" cy="28" r="26" fill="#3B82F6" opacity="0.3"/>
+                  <circle cx="28" cy="28" r="20" fill="#3B82F6" opacity="0.6"/>
+                  <circle cx="28" cy="28" r="14" fill="#3B82F6"/>
+                  <text x="28" y="32" text-anchor="middle" fill="white" font-size="14" font-weight="bold" font-family="Arial">${count}</text>
+                </svg>
+              `)}`,
+              iconSize: size === 'large' ? [56, 56] : size === 'medium' ? [48, 48] : [40, 40],
+              iconAnchor: size === 'large' ? [28, 28] : size === 'medium' ? [24, 24] : [20, 20],
+              className: 'custom-cluster-icon',
+            });
+          }}
+        >
+          {filteredReports.map((report) => {
+            const currentTrustScore = reportTrustScores[report.id] ?? report.trust_score;
+            const isVerified = currentTrustScore > 5;
+
+            return (
+              <Marker
+                key={report.id}
+                position={[report.latitude, report.longitude]}
+                icon={getIconForType(report.type, currentTrustScore)}
+              >
+                <Popup>
+                  <div className="p-2 min-w-[240px]">
+                    <div className="flex items-center gap-2 mb-2">
+                      <div
+                        className="w-3 h-3 rounded-full"
+                        style={{ backgroundColor: REPORT_TYPES.find(rt => rt.value === report.type)?.color }}
+                      />
+                      <h3 className="font-semibold text-gray-900 flex-1">
+                        {REPORT_TYPES.find((rt) => rt.value === report.type)?.label}
+                      </h3>
+                      {isVerified && (
+                        <span className="flex items-center gap-1 px-2 py-0.5 bg-yellow-100 text-yellow-800 text-xs rounded-full font-medium">
+                          <Star className="w-3 h-3 fill-current" />
+                          Terverifikasi
+                        </span>
+                      )}
+                    </div>
+                    {report.description && (
+                      <p className="text-sm text-gray-600 mb-2">{report.description}</p>
+                    )}
+                    <p className="text-xs text-gray-500">{formatDate(report.created_at)}</p>
+                    {report.is_resolved && (
+                      <span className="inline-block mt-2 px-2 py-1 bg-green-100 text-green-800 text-xs rounded">
+                        Terselesaikan
                       </span>
                     )}
+                    <VoteButtons
+                      reportId={report.id}
+                      initialTrustScore={currentTrustScore}
+                      onVoteChange={(newScore) => handleVoteSuccess(report.id, newScore)}
+                    />
                   </div>
-                  {report.description && (
-                    <p className="text-sm text-gray-600 mb-2">{report.description}</p>
-                  )}
-                  <p className="text-xs text-gray-500">{formatDate(report.created_at)}</p>
-                  {report.is_resolved && (
-                    <span className="inline-block mt-2 px-2 py-1 bg-green-100 text-green-800 text-xs rounded">
-                      Terselesaikan
-                    </span>
-                  )}
-                  <VoteButtons
-                    reportId={report.id}
-                    initialTrustScore={currentTrustScore}
-                    onVoteChange={(newScore) => handleVoteSuccess(report.id, newScore)}
-                  />
-                </div>
-              </Popup>
-            </Marker>
-          );
-        })}
+                </Popup>
+              </Marker>
+            );
+          })}
+        </MarkerClusterGroup>
       </MapContainer>
 
       {user && (
