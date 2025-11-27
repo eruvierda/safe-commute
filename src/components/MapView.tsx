@@ -77,23 +77,59 @@ function LocateMeButton() {
 
   const handleLocateMe = () => {
     setIsLocating(true);
+
+    // Safety timeout to reset loading state after 10 seconds
+    const safetyTimeout = setTimeout(() => {
+      setIsLocating(false);
+      toast.error('Permintaan lokasi timeout. Silakan coba lagi.', {
+        duration: 4000,
+        position: 'top-center',
+      });
+    }, 10000);
+
     if ('geolocation' in navigator) {
       navigator.geolocation.getCurrentPosition(
         (position) => {
+          clearTimeout(safetyTimeout);
           const { latitude, longitude } = position.coords;
           map.flyTo([latitude, longitude], 15, { duration: 1.5 });
           setIsLocating(false);
+          toast.success('Lokasi ditemukan!', {
+            duration: 2000,
+            position: 'top-center',
+          });
         },
         (error) => {
+          clearTimeout(safetyTimeout);
           console.error('Error getting location:', error);
-          toast.error('Tidak dapat mengakses lokasi Anda. Pastikan izin lokasi diaktifkan.', {
+
+          let errorMessage = 'Tidak dapat mengakses lokasi Anda.';
+          switch (error.code) {
+            case error.PERMISSION_DENIED:
+              errorMessage = 'Izin lokasi ditolak. Silakan aktifkan di pengaturan browser.';
+              break;
+            case error.POSITION_UNAVAILABLE:
+              errorMessage = 'Informasi lokasi tidak tersedia.';
+              break;
+            case error.TIMEOUT:
+              errorMessage = 'Permintaan lokasi timeout. Silakan coba lagi.';
+              break;
+          }
+
+          toast.error(errorMessage, {
             duration: 4000,
             position: 'top-center',
           });
           setIsLocating(false);
+        },
+        {
+          enableHighAccuracy: true,
+          timeout: 8000, // 8 second timeout
+          maximumAge: 5000 // Accept cached position up to 5 seconds old
         }
       );
     } else {
+      clearTimeout(safetyTimeout);
       toast.error('Geolocation tidak didukung di browser Anda.', {
         duration: 4000,
         position: 'top-center',
