@@ -174,6 +174,63 @@ The project includes:
 - Implement content moderation system
 - Add report flagging functionality
 
+## Troubleshooting
+
+### TypeScript Error: "Parameter 'cluster' implicitly has an 'any' type"
+
+**Problem**: When working with `react-leaflet-cluster`, you may encounter this TypeScript error in `MapView.tsx`:
+```
+Parameter 'cluster' implicitly has an 'any' type. @[MapView.tsx:L427]
+```
+
+**Root Cause**: The `MarkerCluster` type comes from the `leaflet.markercluster` package, which requires separate type definitions that may not be installed by default.
+
+**Solution**:
+
+1. **Install the type definitions**:
+   ```bash
+   npm install --save-dev @types/leaflet.markercluster
+   ```
+
+2. **Import the MarkerCluster type** in your component:
+   ```tsx
+   import { Icon, LatLngTuple, MarkerCluster } from 'leaflet';
+   import 'leaflet.markercluster'; // Import for type augmentation
+   ```
+
+3. **Add explicit type annotation** to the cluster parameter:
+   ```tsx
+   iconCreateFunction={(cluster: MarkerCluster) => {
+     const count = cluster.getChildCount();
+     // ... rest of your code
+   }}
+   ```
+
+4. **Verify the fix**:
+   ```bash
+   npm run typecheck
+   ```
+
+The type check should now pass without errors.
+
+### Other Common Issues
+
+**Map not loading**:
+- Verify your internet connection (OpenStreetMap tiles require internet)
+- Check browser console for CORS or network errors
+- Ensure Leaflet CSS is properly imported
+
+**Reports not appearing**:
+- Check Supabase connection in browser DevTools Network tab
+- Verify environment variables in `.env` are correct
+- Ensure database migrations have been run in order
+- Check that reports haven't expired based on TTL rules
+
+**Geolocation not working**:
+- Grant location permissions in your browser
+- Use HTTPS in production (geolocation requires secure context)
+- Check browser compatibility (most modern browsers support it)
+
 ## Contributing
 
 See [CODE_REVIEW.md](CODE_REVIEW.md) for detailed code analysis and improvement suggestions.

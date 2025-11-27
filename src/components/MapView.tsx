@@ -1,7 +1,7 @@
 import { useEffect, useState, useCallback, useRef } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, useMapEvents, useMap, ZoomControl } from 'react-leaflet';
 import MarkerClusterGroup from 'react-leaflet-cluster';
-import { Icon, LatLngTuple } from 'leaflet';
+import { Icon, LatLngTuple, MarkerCluster } from 'leaflet';
 import { Navigation, Plus, MapPin, Star, Menu as MenuIcon } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { supabase, Report, getActiveReports } from '../supabaseClient';
@@ -17,6 +17,7 @@ import { validateCoordinates, validateDescription } from '../utils/validation';
 import 'leaflet/dist/leaflet.css';
 import 'leaflet.markercluster/dist/MarkerCluster.css';
 import 'leaflet.markercluster/dist/MarkerCluster.Default.css';
+import 'leaflet.markercluster'; // Import for type augmentation
 
 const DEFAULT_CENTER: LatLngTuple = [-6.597, 106.799];
 const DEFAULT_ZOOM = 12;
@@ -424,17 +425,14 @@ export function MapView() {
           spiderfyOnMaxZoom={true}
           showCoverageOnHover={false}
           zoomToBoundsOnClick={true}
-          iconCreateFunction={(cluster) => {
+          iconCreateFunction={(cluster: MarkerCluster) => {
             const count = cluster.getChildCount();
             let size = 'small';
-            let sizeClass = 'w-10 h-10 text-sm';
 
             if (count > 50) {
               size = 'large';
-              sizeClass = 'w-14 h-14 text-lg';
             } else if (count > 10) {
               size = 'medium';
-              sizeClass = 'w-12 h-12 text-base';
             }
 
             return new Icon({
