@@ -14,6 +14,7 @@ import { UserProfile } from './UserProfile';
 import { REPORT_TYPES, ReportType } from '../types';
 import { useAuth } from '../contexts/AuthContext';
 import { validateCoordinates, validateDescription } from '../utils/validation';
+import { formatRelativeDate } from '../utils/dateFormatter';
 import 'leaflet/dist/leaflet.css';
 import 'leaflet.markercluster/dist/MarkerCluster.css';
 import 'leaflet.markercluster/dist/MarkerCluster.Default.css';
@@ -330,21 +331,6 @@ export function MapView() {
     ));
   };
 
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    const now = new Date();
-    const diffMs = now.getTime() - date.getTime();
-    const diffMins = Math.floor(diffMs / 60000);
-    const diffHours = Math.floor(diffMins / 60);
-    const diffDays = Math.floor(diffHours / 24);
-
-    if (diffMins < 1) return 'Baru saja';
-    if (diffMins < 60) return `${diffMins} menit lalu`;
-    if (diffHours < 24) return `${diffHours} jam lalu`;
-    if (diffDays < 7) return `${diffDays} hari lalu`;
-    return date.toLocaleDateString('id-ID');
-  };
-
   const handleHazardTypeToggle = (type: ReportType) => {
     setEnabledHazardTypes((prev) => {
       const newSet = new Set(prev);
@@ -480,7 +466,7 @@ export function MapView() {
                     {report.description && (
                       <p className="text-sm text-gray-600 mb-2">{report.description}</p>
                     )}
-                    <p className="text-xs text-gray-500">{formatDate(report.created_at)}</p>
+                    <p className="text-xs text-gray-500">{formatRelativeDate(report.created_at)}</p>
                     {report.is_resolved && (
                       <span className="inline-block mt-2 px-2 py-1 bg-green-100 text-green-800 text-xs rounded">
                         Terselesaikan

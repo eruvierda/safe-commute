@@ -28,6 +28,10 @@ export function WarningControls({
                 <div
                     className="flex items-center gap-2 cursor-pointer"
                     onClick={() => setIsExpanded(!isExpanded)}
+                    role="button"
+                    aria-label={isExpanded ? "Collapse warning controls" : "Expand warning controls"}
+                    tabIndex={0}
+                    onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') setIsExpanded(!isExpanded); }}
                 >
                     <Bell className={`w-5 h-5 ${isWarningEnabled ? 'text-blue-600' : 'text-gray-400'}`} />
                     {isExpanded && <span className="font-semibold text-gray-900">Peringatan</span>}
@@ -40,11 +44,12 @@ export function WarningControls({
                             className="sr-only peer"
                             checked={isWarningEnabled}
                             onChange={(e) => onWarningToggle(e.target.checked)}
+                            aria-label="Toggle warning system"
                         />
                         <div className="w-9 h-5 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-blue-600"></div>
                     </label>
                 ) : (
-                    <button onClick={() => setIsExpanded(true)}>
+                    <button onClick={() => setIsExpanded(true)} aria-label="Expand warning controls">
                         <ChevronUp className="w-4 h-4 text-gray-500" />
                     </button>
                 )}
@@ -65,6 +70,7 @@ export function WarningControls({
                             value={warningRadius}
                             onChange={(e) => onWarningRadiusChange(parseFloat(e.target.value))}
                             className="w-full h-1.5 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-600"
+                            aria-label={`Warning radius: ${warningRadius} kilometers`}
                         />
                         <div className="flex justify-between text-[10px] text-gray-500 mt-1">
                             <span>0.5km</span>
@@ -111,7 +117,7 @@ export function WarningControls({
 
             {isExpanded && (
                 <div className="flex justify-center mt-2 pt-2 border-t border-gray-100">
-                    <button onClick={() => setIsExpanded(false)}>
+                    <button onClick={() => setIsExpanded(false)} aria-label="Collapse warning controls">
                         <ChevronDown className="w-4 h-4 text-gray-400 hover:text-gray-600" />
                     </button>
                 </div>

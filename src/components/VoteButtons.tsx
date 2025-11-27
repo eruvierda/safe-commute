@@ -86,10 +86,11 @@ export function VoteButtons({ reportId, initialTrustScore, onVoteChange }: VoteB
           onClick={() => handleVote('up')}
           disabled={isLoading}
           className={`p-1.5 rounded-md transition-colors ${userVote === 'up'
-              ? 'bg-green-100 text-green-700'
-              : 'hover:bg-gray-200 text-gray-500'
+            ? 'bg-green-100 text-green-700'
+            : 'hover:bg-gray-200 text-gray-500'
             }`}
           title="Upvote (Laporan Akurat)"
+          aria-label="Upvote laporan"
         >
           <ThumbsUp className={`w-4 h-4 ${userVote === 'up' ? 'fill-current' : ''}`} />
         </button>
@@ -103,10 +104,11 @@ export function VoteButtons({ reportId, initialTrustScore, onVoteChange }: VoteB
           onClick={() => handleVote('down')}
           disabled={isLoading}
           className={`p-1.5 rounded-md transition-colors ${userVote === 'down'
-              ? 'bg-red-100 text-red-700'
-              : 'hover:bg-gray-200 text-gray-500'
+            ? 'bg-red-100 text-red-700'
+            : 'hover:bg-gray-200 text-gray-500'
             }`}
           title="Downvote (Laporan Palsu/Tidak Akurat)"
+          aria-label="Downvote laporan"
         >
           <ThumbsDown className={`w-4 h-4 ${userVote === 'down' ? 'fill-current' : ''}`} />
         </button>

@@ -133,12 +133,14 @@ export function MyReports({ isOpen, onClose, reports, onReportUpdated }: MyRepor
                                                     <button
                                                         onClick={() => handleSaveEdit(report.id)}
                                                         className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
+                                                        aria-label="Save report changes"
                                                     >
                                                         Simpan
                                                     </button>
                                                     <button
                                                         onClick={() => setEditingId(null)}
                                                         className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-medium"
+                                                        aria-label="Cancel editing"
                                                     >
                                                         Batal
                                                     </button>
@@ -187,6 +189,7 @@ export function MyReports({ isOpen, onClose, reports, onReportUpdated }: MyRepor
                                                         disabled={!canEdit}
                                                         className="flex-1 flex items-center justify-center gap-1 px-3 py-2 bg-blue-50 text-blue-700 rounded-lg hover:bg-blue-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm font-medium"
                                                         title={canEdit ? 'Edit laporan' : 'Waktu edit telah habis (15 menit)'}
+                                                        aria-label="Edit report"
                                                     >
                                                         <Edit2 className="w-4 h-4" />
                                                         Edit {!canEdit && '(Terkunci)'}
@@ -194,6 +197,7 @@ export function MyReports({ isOpen, onClose, reports, onReportUpdated }: MyRepor
                                                     <button
                                                         onClick={() => handleDelete(report.id)}
                                                         className="flex-1 flex items-center justify-center gap-1 px-3 py-2 bg-red-50 text-red-700 rounded-lg hover:bg-red-100 transition-colors text-sm font-medium"
+                                                        aria-label="Delete report"
                                                     >
                                                         <Trash2 className="w-4 h-4" />
                                                         Hapus
