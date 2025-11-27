@@ -30,7 +30,11 @@ export function MyReports({ isOpen, onClose, reports, onReportUpdated }: MyRepor
 
     const handleSaveEdit = async (reportId: string) => {
         try {
-            const userId = getUserId();
+            const userId = await getUserId();
+            if (!userId) {
+                toast.error('Anda harus login untuk mengedit laporan');
+                return;
+            }
             const result = await updateUserReport(reportId, userId, editType, editDescription);
 
             if (result.success) {
@@ -50,7 +54,11 @@ export function MyReports({ isOpen, onClose, reports, onReportUpdated }: MyRepor
         if (!confirm('Yakin ingin menghapus laporan ini?')) return;
 
         try {
-            const userId = getUserId();
+            const userId = await getUserId();
+            if (!userId) {
+                toast.error('Anda harus login untuk menghapus laporan');
+                return;
+            }
             const result = await deleteUserReport(reportId, userId);
 
             if (result.success) {
@@ -151,7 +159,7 @@ export function MyReports({ isOpen, onClose, reports, onReportUpdated }: MyRepor
                                                     </div>
                                                     <div className="flex items-center gap-2">
                                                         <span className={`text-sm font-medium ${report.trust_score > 0 ? 'text-green-600' :
-                                                                report.trust_score < 0 ? 'text-red-600' : 'text-gray-600'
+                                                            report.trust_score < 0 ? 'text-red-600' : 'text-gray-600'
                                                             }`}>
                                                             Trust: {report.trust_score > 0 ? '+' : ''}{report.trust_score}
                                                         </span>

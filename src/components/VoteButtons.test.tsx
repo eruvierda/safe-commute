@@ -1,12 +1,12 @@
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import { describe, it, expect, vi, MockedFunction } from 'vitest';
+import { describe, it, expect, vi, MockedFunction, beforeEach } from 'vitest';
 import { VoteButtons } from './VoteButtons';
 import { handleVote, VoteResult } from '../supabaseClient';
 import { getUserId } from '../utils/userId';
 
 // Mock dependencies
 vi.mock('../utils/userId', () => ({
-  getUserId: vi.fn(() => 'test-user-id'),
+  getUserId: vi.fn(() => Promise.resolve('test-user-id')),
 }));
 
 vi.mock('../supabaseClient', () => ({
@@ -27,7 +27,7 @@ describe('VoteButtons', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
-    mockGetUserId.mockReturnValue('test-user-id');
+    mockGetUserId.mockResolvedValue('test-user-id');
   });
 
   it('renders correctly with initial trust score', () => {
@@ -98,7 +98,7 @@ describe('VoteButtons', () => {
   it('handles vote error', async () => {
     mockHandleVote.mockRejectedValueOnce(new Error('Network error'));
 
-    const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+    const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => { });
     render(<VoteButtons {...initialProps} />);
     fireEvent.click(screen.getByText('Valid'));
 

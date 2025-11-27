@@ -2,6 +2,7 @@ import { useEffect, useState, useCallback, useRef } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, useMapEvents, useMap, ZoomControl } from 'react-leaflet';
 import { Icon, LatLngTuple } from 'leaflet';
 import { Navigation, Plus, MapPin, Star, Menu as MenuIcon } from 'lucide-react';
+import toast from 'react-hot-toast';
 import { supabase, Report, getActiveReports } from '../supabaseClient';
 import { ReportModal } from './ReportModal';
 import { VoteButtons } from './VoteButtons';
@@ -11,6 +12,7 @@ import { WarningControls } from './WarningControls';
 import { UserProfile } from './UserProfile';
 import { REPORT_TYPES, ReportType } from '../types';
 import { useAuth } from '../contexts/AuthContext';
+import { validateCoordinates, validateDescription } from '../utils/validation';
 import 'leaflet/dist/leaflet.css';
 
 const DEFAULT_CENTER: LatLngTuple = [-6.597, 106.799];
@@ -79,12 +81,18 @@ function LocateMeButton() {
         },
         (error) => {
           console.error('Error getting location:', error);
-          alert('Tidak dapat mengakses lokasi Anda. Pastikan izin lokasi diaktifkan.');
+          toast.error('Tidak dapat mengakses lokasi Anda. Pastikan izin lokasi diaktifkan.', {
+            duration: 4000,
+            position: 'top-center',
+          });
           setIsLocating(false);
         }
       );
     } else {
-      alert('Geolocation tidak didukung di browser Anda.');
+      toast.error('Geolocation tidak didukung di browser Anda.', {
+        duration: 4000,
+        position: 'top-center',
+      });
       setIsLocating(false);
     }
   };
@@ -253,6 +261,25 @@ export function MapView() {
   const handleReportSubmit = async (type: ReportType, description: string) => {
     if (!selectedLocation) return;
 
+    // Validate coordinates
+    if (!validateCoordinates(selectedLocation.lat, selectedLocation.lng)) {
+      toast.error('Koordinat tidak valid. Silakan pilih lokasi yang benar.', {
+        duration: 4000,
+        position: 'top-center',
+      });
+      return;
+    }
+
+    // Validate description
+    const descValidation = validateDescription(description);
+    if (!descValidation.valid) {
+      toast.error(descValidation.error || 'Deskripsi tidak valid', {
+        duration: 4000,
+        position: 'top-center',
+      });
+      return;
+    }
+
     const { data, error } = await supabase.from('reports').insert([
       {
         type,
@@ -265,11 +292,18 @@ export function MapView() {
 
     if (error) {
       console.error('Error creating report:', error);
-      alert('Gagal mengirim laporan. Silakan coba lagi.');
+      toast.error('Gagal mengirim laporan. Silakan coba lagi.', {
+        duration: 4000,
+        position: 'top-center',
+      });
     } else {
       if (data) {
         setReports(prev => [data as Report, ...prev]);
       }
+      toast.success('Laporan berhasil dikirim!', {
+        duration: 3000,
+        position: 'top-center',
+      });
       setShowModal(false);
       setSelectedLocation(null);
     }

@@ -11,10 +11,6 @@ interface WarningControlsProps {
     onWarningToggle: (enabled: boolean) => void;
 }
 
-
-
-
-
 export function WarningControls({
     warningRadius,
     onWarningRadiusChange,
