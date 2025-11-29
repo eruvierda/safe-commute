@@ -133,6 +133,7 @@ export function ReportModal({ isOpen, onClose, onSubmit, userLocation }: ReportM
               onClick={onClose}
               className="flex-1 px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-medium"
               disabled={isSubmitting}
+              aria-label="Batal membuat laporan"
             >
               Batal
             </button>
@@ -140,6 +141,7 @@ export function ReportModal({ isOpen, onClose, onSubmit, userLocation }: ReportM
               type="submit"
               disabled={isSubmitting || !!descriptionError || !selectedType || !userLocation}
               className="flex-1 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+              aria-label="Kirim laporan bahaya"
             >
               {isSubmitting ? (
                 <>

@@ -75,6 +75,7 @@ export function Menu({
                   onClick={() => signOut()}
                   className="p-2 text-gray-500 hover:text-red-600 hover:bg-red-50 rounded-full transition-colors"
                   title="Keluar"
+                  aria-label="Keluar dari akun"
                 >
                   <LogOut className="w-5 h-5" />
                 </button>
@@ -83,6 +84,7 @@ export function Menu({
               <button
                 onClick={() => setShowAuthModal(true)}
                 className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
+                aria-label="Masuk atau daftar akun baru"
               >
                 <User className="w-5 h-5" />
                 Masuk / Daftar
@@ -95,6 +97,7 @@ export function Menu({
               <button
                 onClick={handleProfileClick}
                 className="w-full flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-gray-50 rounded-lg transition-colors border border-gray-200"
+                aria-label="Buka profil saya"
               >
                 <User className="w-5 h-5" />
                 <span className="font-medium">Profil Saya</span>
