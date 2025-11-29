@@ -177,6 +177,9 @@ export function MapView() {
     kriminal: 'M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 6c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 10c-2.33 0-4.31-1.46-5.11-3.5h10.22c-.8 2.04-2.78 3.5-5.11 3.5z', // Shield/Person
     jalan_rusak: 'M12 2L1 21h22L12 2zm0 3.45l8.43 14.55H3.57L12 5.45z M11 10h2v6h-2zm0 8h2v2h-2z', // Warning/Cone-ish
     lampu_mati: 'M9 21c0 .55.45 1 1 1h4c.55 0 1-.45 1-1v-1H9v1zm3-19C8.14 2 5 5.14 5 9c0 2.38 1.19 4.47 3 5.74V17c0 .55.45 1 1 1h6c.55 0 1-.45 1-1v-2.26c1.81-1.27 3-3.36 3-5.74 0-3.86-3.14-7-7-7zm2.85 11.1l-.85.6V16h-4v-2.3l-.85-.6C7.8 12.16 7 10.63 7 9c0-2.76 2.24-5 5-5s5 2.24 5 5c0 1.63-.8 3.16-2.15 4.1z', // Lightbulb
+    banjir_rob: 'M12 22c4.97 0 9-4.03 9-9-4.5 0-4.5-5-9-5s-4.5 5-9 5c0 4.97 4.03 9 9 9z M12 13c-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4-1.79-4-4-4z', // Wave/Water
+    tanggul_jebol: 'M2 22h20V2L2 22zm16-6l-3.5-3.5 2.5-2.5 3.5 3.5-2.5 2.5z', // Broken wall/dam
+    kapal_tenggelam: 'M12 2L2 22h20L12 2zm0 3l7.5 15h-15L12 5z M12 16c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z', // Ship/Triangle (placeholder, better ship icon needed ideally but this works for now)
   };
 
   const createCustomIcon = useCallback((color: string, iconPath: string, verified: boolean = false): Icon => {

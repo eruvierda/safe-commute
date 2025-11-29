@@ -1,4 +1,4 @@
-export type ReportType = 'banjir' | 'macet' | 'kriminal' | 'jalan_rusak' | 'lampu_mati';
+export type ReportType = 'banjir' | 'macet' | 'kriminal' | 'jalan_rusak' | 'lampu_mati' | 'banjir_rob' | 'tanggul_jebol' | 'kapal_tenggelam';
 
 export interface Report {
   id: string;
@@ -42,4 +42,7 @@ export const REPORT_TYPES: { value: ReportType; label: string; color: string }[]
   { value: 'kriminal', label: '⚠️ Kriminal (Crime)', color: '#DC2626' },
   { value: 'jalan_rusak', label: '🚧 Jalan Rusak (Road Damage)', color: '#F59E0B' },
   { value: 'lampu_mati', label: '💡 Lampu Mati (Light Out)', color: '#6B7280' },
+  { value: 'banjir_rob', label: '🌊 Banjir Rob (High Tide)', color: '#0EA5E9' },
+  { value: 'tanggul_jebol', label: '🏚️ Tanggul Jebol (Broken Dam)', color: '#7F1D1D' },
+  { value: 'kapal_tenggelam', label: '🚢 Kapal Tenggelam (Sunken Ship)', color: '#1E3A8A' },
 ];
