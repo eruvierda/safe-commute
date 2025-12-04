@@ -11,6 +11,7 @@ export interface Report {
   trust_score: number;
   last_confirmed_at: string;
   user_id?: string;
+  image_url?: string;
   deleted_at?: string | null;
 }
 

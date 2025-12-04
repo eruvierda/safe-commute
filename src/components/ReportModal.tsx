@@ -1,5 +1,7 @@
 import { useState } from 'react';
-import { X, MapPin, AlertTriangle, Loader2 } from 'lucide-react';
+import { X, MapPin, AlertTriangle, Loader2, Camera, Image as ImageIcon, Trash2 } from 'lucide-react';
+import imageCompression from 'browser-image-compression';
+import { supabase } from '../supabaseClient';
 import { useAuth } from '../contexts/AuthContext';
 import { AuthModal } from './Auth/AuthModal';
 import { REPORT_TYPES, ReportType } from '../types';
@@ -8,7 +10,7 @@ import { validateDescription } from '../utils/validation';
 interface ReportModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSubmit: (type: ReportType, description: string) => void;
+  onSubmit: (type: ReportType, description: string, imageUrl?: string) => void;
   userLocation: { latitude: number; longitude: number } | null;
 }
 
@@ -19,6 +21,9 @@ export function ReportModal({ isOpen, onClose, onSubmit, userLocation }: ReportM
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [descriptionError, setDescriptionError] = useState<string | null>(null);
   const [showAuthModal, setShowAuthModal] = useState(false);
+  const [selectedImage, setSelectedImage] = useState<File | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [isCompressing, setIsCompressing] = useState(false);
 
   if (!isOpen) return null;
 
@@ -29,6 +34,49 @@ export function ReportModal({ isOpen, onClose, onSubmit, userLocation }: ReportM
     // Validate description
     const validation = validateDescription(value);
     setDescriptionError(validation.valid ? null : validation.error || null);
+  };
+
+  const handleImageSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      alert('Mohon pilih file gambar.');
+      return;
+    }
+
+    // Validate file size (max 10MB before compression)
+    if (file.size > 10 * 1024 * 1024) {
+      alert('Ukuran file terlalu besar (maks 10MB).');
+      return;
+    }
+
+    setIsCompressing(true);
+    try {
+      const options = {
+        maxSizeMB: 0.2, // Compress to ~200KB
+        maxWidthOrHeight: 1024,
+        useWebWorker: true,
+      };
+
+      const compressedFile = await imageCompression(file, options);
+      setSelectedImage(compressedFile);
+      setPreviewUrl(URL.createObjectURL(compressedFile));
+    } catch (error) {
+      console.error('Error compressing image:', error);
+      alert('Gagal memproses gambar. Silakan coba lagi.');
+    } finally {
+      setIsCompressing(false);
+    }
+  };
+
+  const handleRemoveImage = () => {
+    setSelectedImage(null);
+    if (previewUrl) {
+      URL.revokeObjectURL(previewUrl);
+      setPreviewUrl(null);
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -52,7 +100,35 @@ export function ReportModal({ isOpen, onClose, onSubmit, userLocation }: ReportM
     }
 
     setIsSubmitting(true);
-    await onSubmit(selectedType, description);
+
+    let imageUrl = undefined;
+
+    if (selectedImage) {
+      try {
+        const fileExt = selectedImage.name.split('.').pop();
+        const fileName = `${Math.random()}.${fileExt}`;
+        const filePath = `${user.id}/${fileName}`;
+
+        const { error: uploadError } = await supabase.storage
+          .from('hazard-photos')
+          .upload(filePath, selectedImage);
+
+        if (uploadError) {
+          throw uploadError;
+        }
+
+        const { data: { publicUrl } } = supabase.storage
+          .from('hazard-photos')
+          .getPublicUrl(filePath);
+
+        imageUrl = publicUrl;
+      } catch (error) {
+        console.error('Error uploading image:', error);
+        alert('Gagal mengunggah gambar. Laporan akan dikirim tanpa gambar.');
+      }
+    }
+
+    await onSubmit(selectedType, description, imageUrl);
     setIsSubmitting(false);
   };
 
@@ -125,6 +201,49 @@ export function ReportModal({ isOpen, onClose, onSubmit, userLocation }: ReportM
                 {charCount}/{maxChars}
               </span>
             </div>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Foto Bukti (Opsional)
+            </label>
+
+            {!previewUrl ? (
+              <div className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-lg hover:border-blue-500 transition-colors cursor-pointer relative"
+                onClick={() => document.getElementById('image-upload')?.click()}>
+                <div className="space-y-1 text-center">
+                  {isCompressing ? (
+                    <Loader2 className="mx-auto h-12 w-12 text-gray-400 animate-spin" />
+                  ) : (
+                    <Camera className="mx-auto h-12 w-12 text-gray-400" />
+                  )}
+                  <div className="flex text-sm text-gray-600 justify-center">
+                    <label htmlFor="image-upload" className="relative cursor-pointer bg-white rounded-md font-medium text-blue-600 hover:text-blue-500 focus-within:outline-none">
+                      <span>Ambil Foto</span>
+                      <input id="image-upload" name="image-upload" type="file" className="sr-only" accept="image/*" onChange={handleImageSelect} disabled={isCompressing} />
+                    </label>
+                    <p className="pl-1">atau unggah</p>
+                  </div>
+                  <p className="text-xs text-gray-500">PNG, JPG, GIF up to 10MB</p>
+                </div>
+              </div>
+            ) : (
+              <div className="relative mt-2 rounded-lg overflow-hidden border border-gray-300 bg-gray-50">
+                <img src={previewUrl} alt="Preview" className="w-full h-48 object-contain" />
+                <button
+                  type="button"
+                  onClick={handleRemoveImage}
+                  className="absolute top-2 right-2 p-1.5 bg-red-600 text-white rounded-full hover:bg-red-700 transition-colors shadow-sm"
+                  aria-label="Hapus foto"
+                >
+                  <Trash2 className="w-4 h-4" />
+                </button>
+                <div className="absolute bottom-2 right-2 px-2 py-1 bg-black bg-opacity-60 rounded text-xs text-white flex items-center gap-1">
+                  <ImageIcon className="w-3 h-3" />
+                  <span>{(selectedImage!.size / 1024).toFixed(1)} KB</span>
+                </div>
+              </div>
+            )}
           </div>
 
           <div className="flex gap-3 pt-2">

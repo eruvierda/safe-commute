@@ -303,7 +303,7 @@ export function MapView() {
     }
   };
 
-  const handleReportSubmit = async (type: ReportType, description: string) => {
+  const handleReportSubmit = async (type: ReportType, description: string, imageUrl?: string) => {
     if (!selectedLocation) return;
 
     // Validate coordinates
@@ -329,6 +329,7 @@ export function MapView() {
       {
         type,
         description: description || null,
+        image_url: imageUrl || null,
         latitude: selectedLocation.lat,
         longitude: selectedLocation.lng,
         user_id: user?.id,
@@ -497,6 +498,16 @@ export function MapView() {
                         </span>
                       )}
                     </div>
+                    {report.image_url && (
+                      <div className="mb-2 rounded-lg overflow-hidden border border-gray-200">
+                        <img
+                          src={report.image_url}
+                          alt="Bukti laporan"
+                          className="w-full h-32 object-cover hover:object-contain bg-gray-50 transition-all cursor-pointer"
+                          onClick={() => window.open(report.image_url, '_blank')}
+                        />
+                      </div>
+                    )}
                     {report.description && (
                       <p className="text-sm text-gray-600 mb-2">{report.description}</p>
                     )}

@@ -1,10 +1,10 @@
 ### **Phase 1 (Essential):**
 
-- [ ]  **Hazard markers** with clickable details
-- [ ]  **User location** tracking
-- [ ]  **Search/geocoding** functionality
-- [ ]  **Basic filtering** (hazard type)
-- [ ]  **Mobile-responsive** bottom sheets
+- [ x]  **Hazard markers** with clickable details
+- [ x]  **User location** tracking
+- [ x]  **Search/geocoding** functionality
+- [ x]  **Basic filtering** (hazard type)
+- [ x]  **Mobile-responsive** bottom sheets
 
 ### **Phase 2 (Enhanced):**
 
