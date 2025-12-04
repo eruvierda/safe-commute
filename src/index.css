@@ -143,3 +143,10 @@ select:disabled {
     transition-duration: 0.01ms !important;
   }
 }
+
+/* Hide Leaflet Zoom Control on mobile */
+@media (max-width: 640px) {
+  .leaflet-control-zoom {
+    display: none !important;
+  }
+}

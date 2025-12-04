@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { Search, X, Loader2, MapPin } from 'lucide-react';
+import { Search, X, Loader2, MapPin, Menu } from 'lucide-react';
 import { useMap } from 'react-leaflet';
 
 interface SearchResult {
@@ -10,7 +10,11 @@ interface SearchResult {
     type: string;
 }
 
-export function SearchControl() {
+interface SearchControlProps {
+    onMenuClick: () => void;
+}
+
+export function SearchControl({ onMenuClick }: SearchControlProps) {
     const map = useMap();
     const [query, setQuery] = useState('');
     const [results, setResults] = useState<SearchResult[]>([]);
@@ -119,30 +123,39 @@ export function SearchControl() {
     return (
         <div
             ref={containerRef}
-            className="absolute top-4 left-1/2 -translate-x-1/2 z-[1000] w-[90%] max-w-md"
+            className="absolute top-4 left-1/2 -translate-x-1/2 z-[1000] w-[95%] max-w-md"
         >
-            <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <Search className="h-5 w-5 text-gray-400" />
-                </div>
-                <input
-                    type="text"
-                    className="block w-full pl-10 pr-10 py-3 border border-gray-300 rounded-lg leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-blue-500 focus:border-blue-500 sm:text-sm shadow-lg"
-                    placeholder="Cari lokasi..."
-                    value={query}
-                    onChange={handleInputChange}
-                />
-                <div className="absolute inset-y-0 right-0 pr-3 flex items-center">
-                    {isLoading ? (
-                        <Loader2 className="h-5 w-5 text-blue-500 animate-spin" />
-                    ) : query ? (
-                        <button
-                            onClick={clearSearch}
-                            className="text-gray-400 hover:text-gray-600"
-                        >
-                            <X className="h-5 w-5" />
-                        </button>
-                    ) : null}
+            <div className="relative flex items-center gap-2">
+                <button
+                    onClick={onMenuClick}
+                    className="p-3 bg-white rounded-lg shadow-lg border border-gray-300 hover:bg-gray-50 transition-colors"
+                    aria-label="Menu"
+                >
+                    <Menu className="h-5 w-5 text-gray-700" />
+                </button>
+                <div className="relative flex-1">
+                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <Search className="h-5 w-5 text-gray-400" />
+                    </div>
+                    <input
+                        type="text"
+                        className="block w-full pl-10 pr-10 py-3 border border-gray-300 rounded-lg leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-blue-500 focus:border-blue-500 sm:text-sm shadow-lg"
+                        placeholder="Cari lokasi..."
+                        value={query}
+                        onChange={handleInputChange}
+                    />
+                    <div className="absolute inset-y-0 right-0 pr-3 flex items-center">
+                        {isLoading ? (
+                            <Loader2 className="h-5 w-5 text-blue-500 animate-spin" />
+                        ) : query ? (
+                            <button
+                                onClick={clearSearch}
+                                className="text-gray-400 hover:text-gray-600"
+                            >
+                                <X className="h-5 w-5" />
+                            </button>
+                        ) : null}
+                    </div>
                 </div>
             </div>
 

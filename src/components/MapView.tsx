@@ -2,7 +2,7 @@ import { useEffect, useState, useCallback, useRef } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, useMapEvents, useMap, ZoomControl } from 'react-leaflet';
 import MarkerClusterGroup from 'react-leaflet-cluster';
 import { Icon, LatLngTuple, MarkerCluster } from 'leaflet';
-import { Navigation, Plus, MapPin, Star, Menu as MenuIcon } from 'lucide-react';
+import { Navigation, Plus, MapPin, Star } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { supabase, Report, getActiveReports } from '../supabaseClient';
 import { ReportModal } from './ReportModal';
@@ -401,7 +401,7 @@ export function MapView() {
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
-        <SearchControl />
+        <SearchControl onMenuClick={() => setIsMenuOpen(true)} />
         <MapRecenter location={userLocation} hasCentered={hasCentered} setHasCentered={setHasCentered} />
 
         {/* User Location Marker */}
@@ -433,17 +433,11 @@ export function MapView() {
         )}
 
         <LocationMarker onLocationSelect={handleLocationSelect} isPinMode={isPinMode} />
-        <LocateMeButton />
 
-        {/* Menu Button */}
-        <button
-          onClick={() => setIsMenuOpen(true)}
-          className="absolute top-4 left-4 z-[999] bg-white p-2 sm:p-3 rounded-lg shadow-lg hover:bg-gray-50 transition-colors"
-          aria-label="Open menu"
-          title="Menu"
-        >
-          <MenuIcon className="w-5 h-5 sm:w-6 sm:h-6 text-blue-600" />
-        </button>
+        {/* Locate Me Button - Moved to bottom right above attribution */}
+        <div className="absolute bottom-24 right-4 z-[999]">
+          <LocateMeButton />
+        </div>
 
         <MarkerClusterGroup
           chunkedLoading
