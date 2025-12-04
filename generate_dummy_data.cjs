@@ -1,10 +1,10 @@
 const fs = require('fs');
 
 function generateValidDummyData() {
-    // Center roughly between land and sea for Jakarta Bay area
-    const centerLat = -6.100000;
-    const centerLng = 106.865528;
-    const radiusKm = 15;
+    // Center roughly between land and sea for Jakarta Bay area -6.198418, 106.835126
+    const centerLat = -6.198418;
+    const centerLng = 106.835126;
+    const radiusKm = 10;
     const numRecords = 300; // Total records
 
     // Land types
@@ -65,7 +65,7 @@ function generateValidDummyData() {
         }
 
         const createdAt = new Date(Date.now() - daysAgo * 24 * 60 * 60 * 1000);
-        const createdAtStr = createdAt.toISOString().replace('T', ' ').substring(0, 19);
+        const createdAtStr = createdAt.toISOString(); // Keep the Z for UTC
 
         const trustScore = Math.floor(Math.random() * 11);
         const isResolved = Math.random() < 0.3 ? 'true' : 'false';

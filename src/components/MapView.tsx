@@ -11,6 +11,7 @@ import { Menu } from './Menu';
 import { WarningSystem } from './WarningSystem';
 import { WarningControls } from './WarningControls';
 import { UserProfile } from './UserProfile';
+import { SearchControl } from './SearchControl';
 import { REPORT_TYPES, ReportType } from '../types';
 import { useAuth } from '../contexts/AuthContext';
 import { validateCoordinates, validateDescription } from '../utils/validation';
@@ -400,7 +401,7 @@ export function MapView() {
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
-
+        <SearchControl />
         <MapRecenter location={userLocation} hasCentered={hasCentered} setHasCentered={setHasCentered} />
 
         {/* User Location Marker */}
