@@ -12,9 +12,10 @@ interface SearchResult {
 
 interface SearchControlProps {
     onMenuClick: () => void;
+    onLocationSelect?: (location: { lat: number; lng: number; name: string }) => void;
 }
 
-export function SearchControl({ onMenuClick }: SearchControlProps) {
+export function SearchControl({ onMenuClick, onLocationSelect }: SearchControlProps) {
     const map = useMap();
     const [query, setQuery] = useState('');
     const [results, setResults] = useState<SearchResult[]>([]);
@@ -108,6 +109,15 @@ export function SearchControl({ onMenuClick }: SearchControlProps) {
         map.flyTo([lat, lng], 16, {
             duration: 1.5
         });
+
+        // Notify parent component of selected location
+        if (onLocationSelect) {
+            onLocationSelect({
+                lat,
+                lng,
+                name: result.display_name.split(',')[0]
+            });
+        }
 
         setQuery(result.display_name.split(',')[0]);
         setIsOpen(false);

@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback, useRef } from 'react';
-import { MapContainer, TileLayer, Marker, Popup, useMapEvents, useMap, ZoomControl } from 'react-leaflet';
+import { MapContainer, TileLayer, Marker, Popup, useMapEvents, useMap, ZoomControl, Polyline } from 'react-leaflet';
 import MarkerClusterGroup from 'react-leaflet-cluster';
 import { Icon, LatLngTuple, MarkerCluster } from 'leaflet';
 import { Navigation, Plus, MapPin, Star } from 'lucide-react';
@@ -12,10 +12,12 @@ import { WarningSystem } from './WarningSystem';
 import { WarningControls } from './WarningControls';
 import { UserProfile } from './UserProfile';
 import { SearchControl } from './SearchControl';
+import { RoutePlanner } from './RoutePlanner';
 import { REPORT_TYPES, ReportType } from '../types';
 import { useAuth } from '../contexts/AuthContext';
 import { validateCoordinates, validateDescription } from '../utils/validation';
 import { formatRelativeDate } from '../utils/dateFormatter';
+import { RouteResult } from '../utils/routing';
 import 'leaflet/dist/leaflet.css';
 import 'leaflet.markercluster/dist/MarkerCluster.css';
 import 'leaflet.markercluster/dist/MarkerCluster.Default.css';
@@ -168,6 +170,8 @@ export function MapView() {
     new Set(REPORT_TYPES.map(rt => rt.value))
   );
   const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const [searchMarker, setSearchMarker] = useState<{ lat: number; lng: number; name: string } | null>(null);
+  const [currentRoute, setCurrentRoute] = useState<RouteResult | null>(null);
   const watchIdRef = useRef<number | null>(null);
 
   const iconCache = useRef(new Map<string, Icon>());
@@ -402,7 +406,10 @@ export function MapView() {
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
-        <SearchControl onMenuClick={() => setIsMenuOpen(true)} />
+        <SearchControl
+          onMenuClick={() => setIsMenuOpen(true)}
+          onLocationSelect={setSearchMarker}
+        />
         <MapRecenter location={userLocation} hasCentered={hasCentered} setHasCentered={setHasCentered} />
 
         {/* User Location Marker */}
@@ -431,6 +438,51 @@ export function MapView() {
               </div>
             </Popup>
           </Marker>
+        )}
+
+        {/* Search Result Marker */}
+        {searchMarker && (
+          <Marker
+            position={[searchMarker.lat, searchMarker.lng]}
+            icon={new Icon({
+              iconUrl: `data:image/svg+xml;base64,${btoa(`
+                <svg width="32" height="42" viewBox="0 0 32 42" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M16 0C7.163 0 0 7.163 0 16c0 12 16 26 16 26s16-14 16-26c0-8.837-7.163-16-16-16z" fill="#10B981" stroke="#ffffff" stroke-width="2"/>
+                  <circle cx="16" cy="16" r="6" fill="#ffffff"/>
+                  <path d="M12 16 L15 19 L20 13" stroke="#10B981" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              `)}`,
+              iconSize: [32, 42],
+              iconAnchor: [16, 42],
+              popupAnchor: [0, -42],
+            })}
+            zIndexOffset={900}
+          >
+            <Popup>
+              <div className="text-center">
+                <p className="font-bold text-gray-900">{searchMarker.name}</p>
+                <p className="text-xs text-gray-500">Hasil Pencarian</p>
+                <button
+                  onClick={() => setSearchMarker(null)}
+                  className="mt-2 text-xs text-blue-600 hover:text-blue-800"
+                >
+                  Hapus Marker
+                </button>
+              </div>
+            </Popup>
+          </Marker>
+        )}
+
+        {/* Route Polyline */}
+        {currentRoute && (
+          <Polyline
+            positions={currentRoute.geometry}
+            pathOptions={{
+              color: '#3B82F6',
+              weight: 5,
+              opacity: 0.7,
+            }}
+          />
         )}
 
         <LocationMarker onLocationSelect={handleLocationSelect} isPinMode={isPinMode} />
@@ -591,6 +643,14 @@ export function MapView() {
         onHazardTypeToggle={handleHazardTypeToggle}
         isWarningEnabled={isWarningEnabled}
         onWarningToggle={setIsWarningEnabled}
+      />
+
+      {/* Route Planner */}
+      <RoutePlanner
+        userLocation={userLocation}
+        reports={reports}
+        onRouteFound={setCurrentRoute}
+        onClearRoute={() => setCurrentRoute(null)}
       />
     </div>
   );
