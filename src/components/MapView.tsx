@@ -2,7 +2,7 @@ import { useEffect, useState, useCallback, useRef } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, useMapEvents, useMap, ZoomControl, Polyline } from 'react-leaflet';
 import MarkerClusterGroup from 'react-leaflet-cluster';
 import { Icon, LatLngTuple, MarkerCluster } from 'leaflet';
-import { Navigation, Plus, MapPin, Star } from 'lucide-react';
+import { Plus, MapPin, Star, Crosshair } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { supabase, Report, getActiveReports } from '../supabaseClient';
 import { ReportModal } from './ReportModal';
@@ -59,7 +59,7 @@ function LocationMarker({
         icon={new Icon({
           iconUrl: `data:image/svg+xml;base64,${btoa(`
             <svg width="32" height="42" viewBox="0 0 32 42" xmlns="http://www.w3.org/2000/svg">
-              <path d="M16 0C7.163 0 0 7.163 0 16c0 12 16 26 16 26s16-14 16-26c0-8.837-7.163-16-16-16z" fill="#3B82F6" opacity="0.8" stroke="#ffffff" stroke-width="2"/>
+              <path d="M16 0C7.163 0 0 7.163 0 16c0 12 16 26 16 26s16-14 16-26c0-8.837-7.163-16-16-16z" fill="#001572ff" opacity="0.8" stroke="#ffffff" stroke-width="2"/>
               <circle cx="16" cy="16" r="6" fill="#ffffff"/>
             </svg>
           `)}`,
@@ -149,8 +149,38 @@ function LocateMeButton() {
       aria-label="Locate me"
       title="Temukan Lokasi Saya"
     >
-      <Navigation className={`w-5 h-5 sm:w-6 sm:h-6 text-blue-600 ${isLocating ? 'animate-pulse' : ''}`} />
+      <Crosshair className={`w-5 h-5 sm:w-6 sm:h-6 text-blue-600 ${isLocating ? 'animate-pulse' : ''}`} />
     </button>
+  );
+}
+
+// Route Display Component to handle bounds fitting
+function RouteDisplay({ route }: { route: RouteResult | null }) {
+  const map = useMap();
+
+  useEffect(() => {
+    if (route && route.geometry.length > 0) {
+      // Fit bounds to the route path
+      map.fitBounds(route.geometry as LatLngTuple[], {
+        padding: [50, 50],
+        maxZoom: 16,
+        animate: true,
+        duration: 1.5
+      });
+    }
+  }, [route, map]);
+
+  if (!route) return null;
+
+  return (
+    <Polyline
+      positions={route.geometry}
+      pathOptions={{
+        color: '#3B82F6',
+        weight: 5,
+        opacity: 0.7,
+      }}
+    />
   );
 }
 
@@ -171,6 +201,7 @@ export function MapView() {
   );
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [searchMarker, setSearchMarker] = useState<{ lat: number; lng: number; name: string } | null>(null);
+  const [isRoutePlannerOpen, setIsRoutePlannerOpen] = useState(false);
   const [currentRoute, setCurrentRoute] = useState<RouteResult | null>(null);
   const watchIdRef = useRef<number | null>(null);
 
@@ -409,6 +440,7 @@ export function MapView() {
         <SearchControl
           onMenuClick={() => setIsMenuOpen(true)}
           onLocationSelect={setSearchMarker}
+          onRouteClick={() => setIsRoutePlannerOpen(!isRoutePlannerOpen)}
         />
         <MapRecenter location={userLocation} hasCentered={hasCentered} setHasCentered={setHasCentered} />
 
@@ -462,28 +494,21 @@ export function MapView() {
               <div className="text-center">
                 <p className="font-bold text-gray-900">{searchMarker.name}</p>
                 <p className="text-xs text-gray-500">Hasil Pencarian</p>
-                <button
-                  onClick={() => setSearchMarker(null)}
-                  className="mt-2 text-xs text-blue-600 hover:text-blue-800"
-                >
-                  Hapus Marker
-                </button>
+                <div className="flex gap-2 mt-2">
+                  <button
+                    onClick={() => setSearchMarker(null)}
+                    className="flex-1 text-xs text-gray-600 hover:text-gray-800 px-2 py-1 border border-gray-300 rounded hover:bg-gray-50 transition-colors"
+                  >
+                    Hapus
+                  </button>
+                </div>
               </div>
             </Popup>
           </Marker>
         )}
 
         {/* Route Polyline */}
-        {currentRoute && (
-          <Polyline
-            positions={currentRoute.geometry}
-            pathOptions={{
-              color: '#3B82F6',
-              weight: 5,
-              opacity: 0.7,
-            }}
-          />
-        )}
+        <RouteDisplay route={currentRoute} />
 
         <LocationMarker onLocationSelect={handleLocationSelect} isPinMode={isPinMode} />
 
@@ -647,10 +672,13 @@ export function MapView() {
 
       {/* Route Planner */}
       <RoutePlanner
+        isOpen={isRoutePlannerOpen}
+        onToggle={setIsRoutePlannerOpen}
         userLocation={userLocation}
         reports={reports}
         onRouteFound={setCurrentRoute}
         onClearRoute={() => setCurrentRoute(null)}
+        initialDestination={searchMarker}
       />
     </div>
   );

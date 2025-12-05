@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { Search, X, Loader2, MapPin, Menu } from 'lucide-react';
+import { Search, X, Loader2, MapPin, Menu, Navigation } from 'lucide-react';
 import { useMap } from 'react-leaflet';
 
 interface SearchResult {
@@ -13,9 +13,10 @@ interface SearchResult {
 interface SearchControlProps {
     onMenuClick: () => void;
     onLocationSelect?: (location: { lat: number; lng: number; name: string }) => void;
+    onRouteClick: () => void;
 }
 
-export function SearchControl({ onMenuClick, onLocationSelect }: SearchControlProps) {
+export function SearchControl({ onMenuClick, onLocationSelect, onRouteClick }: SearchControlProps) {
     const map = useMap();
     const [query, setQuery] = useState('');
     const [results, setResults] = useState<SearchResult[]>([]);
@@ -138,7 +139,7 @@ export function SearchControl({ onMenuClick, onLocationSelect }: SearchControlPr
             <div className="relative flex items-center gap-2">
                 <button
                     onClick={onMenuClick}
-                    className="p-3 bg-white rounded-lg shadow-lg border border-gray-300 hover:bg-gray-50 transition-colors"
+                    className="p-3 bg-white rounded-lg shadow-lg border border-gray-300 hover:bg-gray-50 active:bg-gray-100 transition-colors"
                     aria-label="Menu"
                 >
                     <Menu className="h-5 w-5 text-gray-700" />
@@ -167,6 +168,14 @@ export function SearchControl({ onMenuClick, onLocationSelect }: SearchControlPr
                         ) : null}
                     </div>
                 </div>
+                <button
+                    onClick={onRouteClick}
+                    className="p-3 bg-white rounded-lg shadow-lg border border-gray-300 hover:shadow-xl hover:bg-blue-50 active:bg-blue-100 active:scale-95 transition-all duration-200"
+                    aria-label="Open route planner"
+                    title="Rencanakan Rute"
+                >
+                    <Navigation className="h-5 w-5 text-blue-600" />
+                </button>
             </div>
 
             {isOpen && results.length > 0 && (
@@ -174,7 +183,7 @@ export function SearchControl({ onMenuClick, onLocationSelect }: SearchControlPr
                     {results.map((result) => (
                         <button
                             key={result.place_id}
-                            className="w-full text-left px-4 py-3 hover:bg-gray-50 flex items-start gap-3 border-b border-gray-100 last:border-0"
+                            className="w-full text-left px-4 py-3 hover:bg-gray-50 active:bg-gray-100 flex items-start gap-3 border-b border-gray-100 last:border-0 transition-colors"
                             onClick={() => handleSelect(result)}
                         >
                             <MapPin className="h-5 w-5 text-gray-400 flex-shrink-0 mt-0.5" />
