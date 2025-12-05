@@ -29,9 +29,19 @@ CREATE TABLE IF NOT EXISTS public.votes (
     UNIQUE(report_id, user_id)
 );
 
--- 3. Row Level Security (RLS)
+-- 3. Profiles Table (Fix for PGRST116 error)
+CREATE TABLE IF NOT EXISTS public.profiles (
+  id UUID REFERENCES auth.users(id) ON DELETE CASCADE PRIMARY KEY,
+  updated_at TIMESTAMPTZ,
+  display_name TEXT,
+  avatar_url TEXT,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- 4. Row Level Security (RLS)
 ALTER TABLE public.reports ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.votes ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
 
 -- Reports Policies
 CREATE POLICY "Public read access" ON public.reports 
@@ -50,7 +60,17 @@ CREATE POLICY "Public read access" ON public.votes
 CREATE POLICY "Authenticated insert/update access" ON public.votes 
     FOR ALL USING (auth.role() = 'authenticated');
 
--- 4. Storage Bucket Setup
+-- Profiles Policies
+CREATE POLICY "Public profiles are viewable by everyone." ON public.profiles
+  FOR SELECT USING (true);
+
+CREATE POLICY "Users can insert their own profile." ON public.profiles
+  FOR INSERT WITH CHECK (auth.uid() = id);
+
+CREATE POLICY "Users can update own profile." ON public.profiles
+  FOR UPDATE USING (auth.uid() = id);
+
+-- 5. Storage Bucket Setup
 INSERT INTO storage.buckets (id, name, public) 
 VALUES ('hazard-photos', 'hazard-photos', true)
 ON CONFLICT (id) DO NOTHING;
@@ -62,7 +82,7 @@ CREATE POLICY "Public Access" ON storage.objects
 CREATE POLICY "Authenticated Upload" ON storage.objects 
     FOR INSERT WITH CHECK ( bucket_id = 'hazard-photos' AND auth.role() = 'authenticated' );
 
--- 5. RPC Functions
+-- 6. RPC Functions & Triggers
 
 -- Function to handle voting logic
 CREATE OR REPLACE FUNCTION handle_vote(
@@ -128,3 +148,19 @@ BEGIN
   ORDER BY created_at DESC;
 END;
 $$ LANGUAGE plpgsql;
+
+-- Trigger to create profile on signup
+CREATE OR REPLACE FUNCTION public.handle_new_user() 
+RETURNS TRIGGER AS $$
+BEGIN
+  INSERT INTO public.profiles (id, display_name, avatar_url)
+  VALUES (new.id, new.raw_user_meta_data->>'full_name', new.raw_user_meta_data->>'avatar_url');
+  RETURN new;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- Drop trigger if exists to avoid errors on re-run
+DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;
+CREATE TRIGGER on_auth_user_created
+  AFTER INSERT ON auth.users
+  FOR EACH ROW EXECUTE PROCEDURE public.handle_new_user();

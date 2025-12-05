@@ -9,8 +9,8 @@
 ### **Phase 2 (Enhanced):**
 
 - [ ]  **Route planning** with hazard avoidance
-- [ ]  **User reporting** system with photo upload
-- [ ]  **Notifications** for hazards on saved routes
+- [x ]  **User reporting** system with photo upload
+- [x ]  **Notifications** for hazards on saved routes
 - [ ]  **Historical data** showing hazard patterns
 - [ ]  **Community validation** of reported hazards
 

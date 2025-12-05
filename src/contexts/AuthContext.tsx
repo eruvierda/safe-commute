@@ -55,6 +55,71 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         return () => subscription.unsubscribe();
     }, []);
 
+    const createProfileIfMissing = async (userId: string) => {
+        try {
+            // Get user metadata from auth.users
+            const { data: { user } } = await supabase.auth.getUser();
+
+            if (!user) {
+                console.error('Cannot create profile: user not authenticated');
+                return null;
+            }
+
+            // Extract display name from user metadata or email
+            const displayName =
+                user.user_metadata?.full_name ||
+                user.user_metadata?.name ||
+                user.email?.split('@')[0] ||
+                'Anonymous User';
+
+            const avatarUrl = user.user_metadata?.avatar_url || null;
+
+            console.log('Creating profile for user:', userId);
+
+            // Insert new profile
+            const { data, error } = await supabase
+                .from('profiles')
+                .insert({
+                    id: userId,
+                    display_name: displayName,
+                    avatar_url: avatarUrl,
+                })
+                .select()
+                .single();
+
+            if (error) {
+                // Check if it's a duplicate key error (profile already exists)
+                if (error.code === '23505') {
+                    console.log('Profile already exists, fetching it...');
+                    return await fetchProfileDirect(userId);
+                }
+                console.error('Error creating profile:', error);
+                return null;
+            }
+
+            console.log('Profile created successfully:', data);
+            return data;
+        } catch (error) {
+            console.error('Error in createProfileIfMissing:', error);
+            return null;
+        }
+    };
+
+    const fetchProfileDirect = async (userId: string) => {
+        const { data, error } = await supabase
+            .from('profiles')
+            .select('*')
+            .eq('id', userId)
+            .single();
+
+        if (error) {
+            console.error('Error fetching profile directly:', error);
+            return null;
+        }
+
+        return data;
+    };
+
     const fetchProfile = async (userId: string) => {
         try {
             const { data, error } = await supabase
@@ -64,7 +129,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                 .single();
 
             if (error) {
-                console.error('Error fetching profile:', error);
+                // PGRST116 means no rows returned (profile doesn't exist)
+                if (error.code === 'PGRST116') {
+                    console.warn('Profile not found, creating one...', { userId, error });
+                    const newProfile = await createProfileIfMissing(userId);
+                    if (newProfile) {
+                        setProfile(newProfile);
+                    }
+                } else {
+                    console.error('Error fetching profile:', error);
+                }
             } else {
                 setProfile(data);
             }
