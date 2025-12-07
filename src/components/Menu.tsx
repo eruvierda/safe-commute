@@ -38,7 +38,7 @@ export function Menu({
       <div className="fixed left-0 top-0 h-full w-full sm:w-96 bg-white/95 backdrop-blur-md shadow-2xl z-[1001] overflow-y-auto transform transition-transform duration-300">
         <div className="sticky top-0 bg-white/50 backdrop-blur z-10 border-b border-gray-100 px-6 py-5 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <img src={logo} alt="SafeCommute Logo" className="w-8 h-8 object-contain" />
+            <img src={logo} alt="SafeCommute Logo" className="w-10 h-10 object-contain" />
             <h2 className="text-xl font-bold text-brand-900 font-sans tracking-tight">
               SafeCommute
             </h2>
