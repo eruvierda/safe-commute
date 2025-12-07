@@ -111,7 +111,7 @@ export function WarningSystem({
         <source src="data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBSuBzvLZiTYIG2m98OSdTgwOUKzn8LZjGwU8k9nyzHksBSR3x/DdkEAKFF606euoVRQKRp/g8r5sIQUrgc7y2Yk2CBtpvfDknU4MDlCs5/C2YxsFPJPZ8sx5LAUkd8fw3ZBAC" type="audio/wav" />
       </audio>
 
-      <div className="fixed top-36 left-4 right-4 sm:left-auto sm:right-4 sm:w-80 z-[1002] space-y-2">
+      <div className="fixed top-24 left-4 right-4 sm:left-auto sm:right-4 sm:top-24 sm:w-80 z-[1002] space-y-3 pointer-events-none">
         {warnings.slice(0, 3).map((warning) => {
           const reportTypeInfo = REPORT_TYPES.find(
             (rt) => rt.value === warning.report.type
@@ -120,40 +120,40 @@ export function WarningSystem({
           return (
             <div
               key={warning.id}
-              className="bg-red-50 border-2 border-red-500 rounded-lg shadow-lg p-2.5 animate-in slide-in-from-top duration-300"
+              className="bg-white/95 backdrop-blur-md border border-red-200 rounded-xl shadow-xl p-4 animate-in slide-in-from-top duration-300 pointer-events-auto ring-1 ring-red-100"
             >
-              <div className="flex items-center gap-2">
-                <div className="flex-shrink-0">
+              <div className="flex items-start gap-3">
+                <div className="flex-shrink-0 bg-red-100 p-2 rounded-full">
                   <AlertTriangle className="w-5 h-5 text-red-600 animate-pulse" />
                 </div>
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-1.5">
+                <div className="flex-1 min-w-0 pt-0.5">
+                  <div className="flex items-center gap-2 mb-1">
                     <div
-                      className="w-2.5 h-2.5 rounded-full"
+                      className="w-2 h-2 rounded-full ring-2 ring-red-50"
                       style={{ backgroundColor: reportTypeInfo?.color }}
                     />
-                    <h4 className="font-semibold text-red-900 text-xs">
+                    <h4 className="font-bold text-gray-900 text-sm leading-none">
                       {reportTypeInfo?.label}
                     </h4>
                   </div>
-                  <p className="text-xs text-red-700 font-medium mt-0.5">
-                    {warning.distance} km dari lokasi Anda
+                  <p className="text-sm text-red-600 font-semibold mt-1">
+                    {warning.distance} km <span className="text-gray-500 font-normal">dari lokasi Anda</span>
                   </p>
                 </div>
                 <button
                   onClick={() => handleDismiss(warning.id)}
-                  className="flex-shrink-0 p-0.5 hover:bg-red-100 rounded transition-colors"
+                  className="flex-shrink-0 -mr-2 -mt-2 p-3 hover:bg-gray-50 rounded-full transition-colors group"
                   aria-label="Dismiss warning"
                 >
-                  <X className="w-3.5 h-3.5 text-red-600" />
+                  <X className="w-4 h-4 text-gray-400 group-hover:text-gray-600" />
                 </button>
               </div>
             </div>
           );
         })}
         {warnings.length > 3 && (
-          <div className="bg-yellow-50 border border-yellow-400 rounded-lg p-2 text-center">
-            <p className="text-xs text-yellow-800 font-medium">
+          <div className="bg-white/90 backdrop-blur pointer-events-auto border border-yellow-400/50 rounded-xl p-3 text-center shadow-lg">
+            <p className="text-xs text-yellow-800 font-bold uppercase tracking-wide">
               +{warnings.length - 3} bahaya lainnya dalam radius
             </p>
           </div>

@@ -139,25 +139,25 @@ export function SearchControl({ onMenuClick, onLocationSelect, onRouteClick }: S
             <div className="relative flex items-center gap-2">
                 <button
                     onClick={onMenuClick}
-                    className="p-3 bg-white rounded-lg shadow-lg border border-gray-300 hover:bg-gray-50 active:bg-gray-100 transition-colors"
+                    className="p-3 glass rounded-xl border-none hover:bg-white/80 active:scale-95 transition-all text-gray-700 hover:text-brand-600"
                     aria-label="Menu"
                 >
-                    <Menu className="h-5 w-5 text-gray-700" />
+                    <Menu className="h-5 w-5" />
                 </button>
-                <div className="relative flex-1">
+                <div className="relative flex-1 group">
                     <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <Search className="h-5 w-5 text-gray-400" />
+                        <Search className="h-5 w-5 text-gray-400 group-focus-within:text-brand-500 transition-colors" />
                     </div>
                     <input
                         type="text"
-                        className="block w-full pl-10 pr-10 py-3 border border-gray-300 rounded-lg leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-blue-500 focus:border-blue-500 sm:text-sm shadow-lg"
+                        className="glass block w-full pl-10 pr-10 py-3 rounded-xl border-none leading-5 bg-white/90 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-brand-500 sm:text-sm transition-all"
                         placeholder="Cari lokasi..."
                         value={query}
                         onChange={handleInputChange}
                     />
                     <div className="absolute inset-y-0 right-0 pr-3 flex items-center">
                         {isLoading ? (
-                            <Loader2 className="h-5 w-5 text-blue-500 animate-spin" />
+                            <Loader2 className="h-5 w-5 text-brand-500 animate-spin" />
                         ) : query ? (
                             <button
                                 onClick={clearSearch}
@@ -170,25 +170,25 @@ export function SearchControl({ onMenuClick, onLocationSelect, onRouteClick }: S
                 </div>
                 <button
                     onClick={onRouteClick}
-                    className="p-3 bg-white rounded-lg shadow-lg border border-gray-300 hover:shadow-xl hover:bg-blue-50 active:bg-blue-100 active:scale-95 transition-all duration-200"
+                    className="p-3 glass rounded-xl border-none hover:bg-brand-50 text-brand-600 active:scale-95 transition-all duration-200"
                     aria-label="Open route planner"
                     title="Rencanakan Rute"
                 >
-                    <Navigation className="h-5 w-5 text-blue-600" />
+                    <Navigation className="h-5 w-5" />
                 </button>
             </div>
 
             {isOpen && results.length > 0 && (
-                <div className="absolute mt-1 w-full bg-white shadow-lg max-h-60 rounded-md py-1 text-base ring-1 ring-black ring-opacity-5 overflow-auto focus:outline-none sm:text-sm">
+                <div className="absolute mt-2 w-full bg-white/95 backdrop-blur-md shadow-2xl max-h-60 rounded-xl py-2 text-base ring-1 ring-black/5 overflow-auto focus:outline-none sm:text-sm animate-in fade-in slide-in-from-top-1 duration-200">
                     {results.map((result) => (
                         <button
                             key={result.place_id}
-                            className="w-full text-left px-4 py-3 hover:bg-gray-50 active:bg-gray-100 flex items-start gap-3 border-b border-gray-100 last:border-0 transition-colors"
+                            className="w-full text-left px-4 py-3 hover:bg-brand-50 active:bg-brand-100 flex items-start gap-3 border-b border-gray-100/50 last:border-0 transition-colors group"
                             onClick={() => handleSelect(result)}
                         >
-                            <MapPin className="h-5 w-5 text-gray-400 flex-shrink-0 mt-0.5" />
+                            <MapPin className="h-5 w-5 text-gray-400 group-hover:text-brand-500 flex-shrink-0 mt-0.5 transition-colors" />
                             <div>
-                                <p className="font-medium text-gray-900 truncate">
+                                <p className="font-medium text-gray-900 truncate group-hover:text-brand-900">
                                     {result.display_name.split(',')[0]}
                                 </p>
                                 <p className="text-xs text-gray-500 line-clamp-2">

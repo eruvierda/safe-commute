@@ -247,13 +247,13 @@ export function RoutePlanner({ isOpen, onToggle, userLocation, reports, onRouteF
     }
 
     return (
-        <div className={`absolute z-[1000] bg-white rounded-lg shadow-xl overflow-hidden flex flex-col transition-all duration-300
+        <div className={`absolute z-[1000] bg-white rounded-xl shadow-xl overflow-hidden flex flex-col transition-all duration-300
             w-[95%] left-1/2 -translate-x-1/2 top-20
             sm:w-96 sm:left-auto sm:right-4 sm:top-4 sm:translate-x-0 sm:max-h-[85vh]
             ${isMinimized ? 'h-auto' : 'max-h-[70vh] sm:max-h-[85vh]'}`}
         >
             {/* Header */}
-            <div className="p-4 bg-gradient-to-r from-blue-600 to-blue-700 text-white flex justify-between items-center shrink-0">
+            <div className="p-4 bg-gradient-to-r from-brand-600 to-brand-700 text-white flex justify-between items-center shrink-0">
                 <button
                     onClick={() => setIsMinimized(!isMinimized)}
                     className="flex items-center gap-2 font-semibold hover:opacity-90 transition-opacity"
@@ -265,14 +265,14 @@ export function RoutePlanner({ isOpen, onToggle, userLocation, reports, onRouteF
                 <div className="flex items-center gap-1">
                     <button
                         onClick={() => setIsMinimized(!isMinimized)}
-                        className="p-1.5 hover:bg-white/10 rounded transition-colors"
+                        className="p-1.5 hover:bg-white/10 rounded-lg transition-colors"
                         aria-label={isMinimized ? "Expand" : "Minimize"}
                     >
                         {isMinimized ? <ChevronDown className="w-5 h-5" /> : <ChevronUp className="w-5 h-5" />}
                     </button>
                     <button
                         onClick={handleClose}
-                        className="hover:bg-red-500/80 p-1.5 rounded transition-colors duration-150"
+                        className="hover:bg-brand-800 p-1.5 rounded-lg transition-colors duration-150"
                         aria-label="Close route planner"
                     >
                         <X className="w-5 h-5" />
@@ -284,7 +284,7 @@ export function RoutePlanner({ isOpen, onToggle, userLocation, reports, onRouteF
                 <div className="p-4 space-y-3 overflow-y-auto">
                     {/* Start Location */}
                     <div className="relative" ref={startSearchRef}>
-                        <div className="absolute left-3 top-3 w-3 h-3 rounded-full bg-blue-500 border-2 border-white shadow-sm z-10"></div>
+                        <div className="absolute left-3 top-3 w-3 h-3 rounded-full bg-brand-500 border-2 border-white shadow-sm z-10"></div>
                         <div className="relative">
                             <input
                                 type="text"
@@ -296,20 +296,20 @@ export function RoutePlanner({ isOpen, onToggle, userLocation, reports, onRouteF
                                     }
                                 }}
                                 placeholder="Pilih titik awal..."
-                                className="w-full pl-9 pr-20 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                                className="w-full pl-9 pr-20 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent transition-all"
                             />
                             <div className="absolute inset-y-0 right-0 pr-2 flex items-center gap-1">
                                 {startPoint && (
                                     <button
                                         onClick={handleUseMyLocation}
-                                        className="text-xs text-blue-600 hover:text-blue-700 font-medium px-2 py-1 hover:bg-blue-50 rounded transition-colors"
+                                        className="text-xs text-brand-600 hover:text-brand-700 font-medium px-2 py-1 hover:bg-brand-50 rounded transition-colors"
                                         title="Gunakan lokasi saya"
                                     >
                                         Reset
                                     </button>
                                 )}
                                 {isStartSearching ? (
-                                    <Loader2 className="h-4 w-4 text-blue-500 animate-spin mr-1" />
+                                    <Loader2 className="h-4 w-4 text-brand-500 animate-spin mr-1" />
                                 ) : (
                                     <Search className="h-4 w-4 text-gray-400 mr-1" />
                                 )}
@@ -322,7 +322,7 @@ export function RoutePlanner({ isOpen, onToggle, userLocation, reports, onRouteF
                                 {startSearchResults.map((result) => (
                                     <button
                                         key={result.place_id}
-                                        className="w-full text-left px-3 py-2.5 hover:bg-blue-50 active:bg-blue-100 flex items-start gap-2 border-b border-gray-100 last:border-0 transition-colors"
+                                        className="w-full text-left px-3 py-2.5 hover:bg-brand-50 active:bg-brand-100 flex items-start gap-2 border-b border-gray-100 last:border-0 transition-colors"
                                         onClick={() => handleSelectStartPoint(result)}
                                     >
                                         <MapPin className="h-4 w-4 text-gray-400 flex-shrink-0 mt-0.5" />
@@ -349,11 +349,11 @@ export function RoutePlanner({ isOpen, onToggle, userLocation, reports, onRouteF
                                 value={searchQuery}
                                 onChange={handleSearchInput}
                                 placeholder="Pilih tujuan..."
-                                className="w-full pl-9 pr-10 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                                className="w-full pl-9 pr-10 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent transition-all"
                             />
                             <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
                                 {isSearching ? (
-                                    <Loader2 className="h-4 w-4 text-blue-500 animate-spin" />
+                                    <Loader2 className="h-4 w-4 text-brand-500 animate-spin" />
                                 ) : (
                                     <Search className="h-4 w-4 text-gray-400" />
                                 )}
@@ -366,7 +366,7 @@ export function RoutePlanner({ isOpen, onToggle, userLocation, reports, onRouteF
                                 {searchResults.map((result) => (
                                     <button
                                         key={result.place_id}
-                                        className="w-full text-left px-3 py-2.5 hover:bg-blue-50 active:bg-blue-100 flex items-start gap-2 border-b border-gray-100 last:border-0 transition-colors"
+                                        className="w-full text-left px-3 py-2.5 hover:bg-brand-50 active:bg-brand-100 flex items-start gap-2 border-b border-gray-100 last:border-0 transition-colors"
                                         onClick={() => handleSelectDestination(result)}
                                     >
                                         <MapPin className="h-4 w-4 text-gray-400 flex-shrink-0 mt-0.5" />
@@ -388,7 +388,7 @@ export function RoutePlanner({ isOpen, onToggle, userLocation, reports, onRouteF
                     <button
                         onClick={handleGetDirections}
                         disabled={isLoading || (!startPoint && !userLocation) || !destination}
-                        className="w-full py-3 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 active:bg-blue-800 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-blue-600 flex justify-center items-center gap-2 shadow-sm hover:shadow-md active:shadow-sm transition-all duration-200 transform active:scale-[0.98]"
+                        className="w-full py-3 bg-brand-600 text-white rounded-lg font-medium hover:bg-brand-700 active:bg-brand-800 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-brand-600 flex justify-center items-center gap-2 shadow-sm hover:shadow-md active:shadow-sm transition-all duration-200 transform active:scale-[0.98]"
                     >
                         {isLoading ? (
                             <>

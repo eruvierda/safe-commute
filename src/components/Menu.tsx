@@ -1,7 +1,8 @@
-import { X, User, LogOut, Settings, MapPin } from 'lucide-react';
+import { X, User, LogOut, MapPin } from 'lucide-react';
 import { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { AuthModal } from './Auth/AuthModal';
+import logo from '../img/logo.png';
 
 interface MenuProps {
   isOpen: boolean;
@@ -34,46 +35,48 @@ export function Menu({
       />
 
       {/* Menu Panel */}
-      <div className="fixed left-0 top-0 h-full w-full sm:w-96 bg-white shadow-2xl z-[1001] overflow-y-auto">
-        <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between">
-          <h2 className="text-xl font-semibold text-gray-900 flex items-center gap-2">
-            <Settings className="w-5 h-5" />
-            Pengaturan
-          </h2>
+      <div className="fixed left-0 top-0 h-full w-full sm:w-96 bg-white/95 backdrop-blur-md shadow-2xl z-[1001] overflow-y-auto transform transition-transform duration-300">
+        <div className="sticky top-0 bg-white/50 backdrop-blur z-10 border-b border-gray-100 px-6 py-5 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <img src={logo} alt="SafeCommute Logo" className="w-8 h-8 object-contain" />
+            <h2 className="text-xl font-bold text-brand-900 font-sans tracking-tight">
+              SafeCommute
+            </h2>
+          </div>
           <button
             onClick={onClose}
             className="p-2 hover:bg-gray-100 rounded-full transition-colors"
             aria-label="Close menu"
           >
-            <X className="w-5 h-5 text-gray-500" />
+            <X className="w-6 h-6 text-gray-400 hover:text-gray-600" />
           </button>
         </div>
 
         <div className="space-y-6">
           {/* User Profile Section */}
-          <div className="p-4 border-b border-gray-200">
+          <div className="p-5 border-b border-gray-100 bg-brand-50/30">
             {user ? (
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   {profile?.avatar_url ? (
                     <img
                       src={profile.avatar_url}
-                      alt={profile.display_name}
-                      className="w-10 h-10 rounded-full object-cover"
+                      alt={profile?.display_name || 'User'}
+                      className="w-12 h-12 rounded-full object-cover border-2 border-brand-100 shadow-sm"
                     />
                   ) : (
-                    <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
-                      <User className="w-6 h-6 text-blue-600" />
+                    <div className="w-12 h-12 bg-brand-50 rounded-full flex items-center justify-center">
+                      <User className="w-6 h-6 text-brand-600" />
                     </div>
                   )}
                   <div>
-                    <p className="font-medium text-gray-900">{profile?.display_name || 'Pengguna'}</p>
+                    <p className="font-semibold text-gray-900">{profile?.display_name || 'Pengguna'}</p>
                     <p className="text-xs text-gray-500 truncate max-w-[150px]">{user.email}</p>
                   </div>
                 </div>
                 <button
                   onClick={() => signOut()}
-                  className="p-2 text-gray-500 hover:text-red-600 hover:bg-red-50 rounded-full transition-colors"
+                  className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all"
                   title="Keluar"
                   aria-label="Keluar dari akun"
                 >
@@ -83,7 +86,7 @@ export function Menu({
             ) : (
               <button
                 onClick={() => setShowAuthModal(true)}
-                className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
+                className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-brand-600 text-white rounded-xl hover:bg-brand-700 transition-all font-semibold shadow-lg shadow-brand-200"
                 aria-label="Masuk atau daftar akun baru"
               >
                 <User className="w-5 h-5" />
@@ -96,20 +99,18 @@ export function Menu({
             {user && (
               <button
                 onClick={handleProfileClick}
-                className="w-full flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-gray-50 rounded-lg transition-colors border border-gray-200"
+                className="w-full flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-brand-50 rounded-xl transition-all border border-gray-200 hover:border-brand-200 hover:text-brand-700 group"
                 aria-label="Buka profil saya"
               >
-                <User className="w-5 h-5" />
+                <User className="w-5 h-5 text-gray-400 group-hover:text-brand-500 transition-colors" />
                 <span className="font-medium">Profil Saya</span>
               </button>
             )}
 
             {/* Info Section */}
-
-            {/* Info Section */}
-            <section className="pt-4 border-t border-gray-200">
+            <section className="pt-4 border-t border-gray-100">
               <div className="flex items-center gap-2 mb-3">
-                <MapPin className="w-5 h-5 text-blue-600" />
+                <MapPin className="w-5 h-5 text-brand-600" />
                 <h3 className="text-lg font-semibold text-gray-900">Tentang</h3>
               </div>
               <div className="text-sm text-gray-600 space-y-2">

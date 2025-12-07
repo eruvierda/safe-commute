@@ -79,115 +79,123 @@ export function UserProfile({ isOpen, onClose, allReports }: UserProfileProps) {
     };
 
     return (
-        <div className="fixed inset-0 z-[1000] flex items-end sm:items-center justify-center bg-black bg-opacity-50">
-            <div className="bg-white w-full sm:max-w-md sm:rounded-lg rounded-t-2xl shadow-xl max-h-[80vh] overflow-y-auto">
+        <div className="fixed inset-0 z-[1000] flex items-end sm:items-center justify-center bg-black/60 backdrop-blur-sm p-4 sm:p-0 transition-opacity duration-300">
+            <div className="bg-white w-full sm:max-w-md sm:rounded-3xl rounded-t-3xl shadow-2xl max-h-[85vh] overflow-y-auto transform transition-transform duration-300">
                 {/* Header */}
-                <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between rounded-t-2xl">
+                <div className="sticky top-0 bg-white/95 backdrop-blur z-10 border-b border-gray-100 px-6 py-5 flex items-center justify-between">
                     <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
-                            <User className="w-6 h-6 text-blue-600" />
+                        <div className="w-10 h-10 bg-brand-50 rounded-full flex items-center justify-center">
+                            <User className="w-6 h-6 text-brand-600" />
                         </div>
-                        <h2 className="text-xl font-semibold text-gray-900">Profil Saya</h2>
+                        <h2 className="text-xl font-bold text-gray-900 font-sans">Profil Saya</h2>
                     </div>
                     <button
                         onClick={onClose}
                         className="p-2 hover:bg-gray-100 rounded-full transition-colors"
                         aria-label="Close"
                     >
-                        <X className="w-5 h-5 text-gray-500" />
+                        <X className="w-6 h-6 text-gray-400 hover:text-gray-600" />
                     </button>
                 </div>
 
                 {/* Content */}
                 <div className="p-6 space-y-6">
                     {isLoading ? (
-                        <div className="text-center py-8">
-                            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-                            <p className="mt-4 text-gray-600">Memuat data...</p>
+                        <div className="text-center py-12">
+                            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-brand-600 mx-auto"></div>
+                            <p className="mt-4 text-gray-500 font-medium">Memuat data...</p>
                         </div>
                     ) : (
                         <>
                             {/* User Info */}
-                            <div className="flex items-center gap-4 mb-6">
+                            <div className="flex items-center gap-4 bg-brand-50/50 p-4 rounded-2xl border border-brand-100">
                                 {profile?.avatar_url ? (
                                     <img
                                         src={profile.avatar_url}
-                                        alt={profile.display_name}
-                                        className="w-16 h-16 rounded-full object-cover border-2 border-blue-100"
+                                        alt={profile?.display_name || 'User'}
+                                        className="w-16 h-16 rounded-full object-cover border-4 border-white shadow-md"
                                     />
                                 ) : (
-                                    <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center border-2 border-blue-50">
-                                        <User className="w-8 h-8 text-blue-600" />
+                                    <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center border-2 border-brand-100 shadow-sm">
+                                        <User className="w-8 h-8 text-brand-600" />
                                     </div>
                                 )}
                                 <div>
-                                    <h3 className="text-xl font-bold text-gray-900">{profile?.display_name || 'Pengguna'}</h3>
+                                    <h3 className="text-xl font-bold text-gray-900 leading-tight">{profile?.display_name || 'Pengguna'}</h3>
                                     <div className="flex items-center gap-2 text-gray-500 text-sm mt-1">
-                                        <Mail className="w-3 h-3" />
-                                        <span>{user?.email}</span>
+                                        <Mail className="w-3.5 h-3.5" />
+                                        <span className="truncate max-w-[200px]">{user?.email}</span>
                                     </div>
-                                    <div className="flex items-center gap-2 text-gray-500 text-sm mt-1">
+                                    <div className="flex items-center gap-2 text-brand-600 text-xs font-medium mt-1.5 bg-brand-100/50 inline-flex px-2 py-0.5 rounded-full">
                                         <Calendar className="w-3 h-3" />
-                                        <span>Bergabung {new Date(user?.created_at || Date.now()).toLocaleDateString('id-ID', { month: 'long', year: 'numeric' })}</span>
+                                        <span>Member sejak {new Date(user?.created_at || Date.now()).toLocaleDateString('id-ID', { month: 'short', year: 'numeric' })}</span>
                                     </div>
                                 </div>
                             </div>
 
                             {/* Statistics Grid */}
-                            <div className="grid grid-cols-2 gap-4">
-                                <div className="bg-blue-50 rounded-lg p-4">
+                            <div className="grid grid-cols-2 gap-3">
+                                <div className="bg-blue-50/80 rounded-2xl p-4 border border-blue-100">
                                     <div className="flex items-center gap-2 mb-2">
-                                        <FileText className="w-5 h-5 text-blue-600" />
-                                        <span className="text-sm text-gray-600">Total Laporan</span>
+                                        <div className="p-1.5 bg-blue-100 rounded-lg">
+                                            <FileText className="w-4 h-4 text-blue-600" />
+                                        </div>
+                                        <span className="text-xs font-semibold text-blue-800 uppercase tracking-wide">Laporan</span>
                                     </div>
-                                    <p className="text-2xl font-bold text-blue-600">{stats?.totalReports || 0}</p>
+                                    <p className="text-3xl font-bold text-blue-700">{stats?.totalReports || 0}</p>
                                 </div>
 
-                                <div className="bg-green-50 rounded-lg p-4">
+                                <div className="bg-green-50/80 rounded-2xl p-4 border border-green-100">
                                     <div className="flex items-center gap-2 mb-2">
-                                        <ThumbsUp className="w-5 h-5 text-green-600" />
-                                        <span className="text-sm text-gray-600">Rata-rata Trust</span>
+                                        <div className="p-1.5 bg-green-100 rounded-lg">
+                                            <ThumbsUp className="w-4 h-4 text-green-600" />
+                                        </div>
+                                        <span className="text-xs font-semibold text-green-800 uppercase tracking-wide">Trust Score</span>
                                     </div>
-                                    <p className="text-2xl font-bold text-green-600">
+                                    <p className="text-3xl font-bold text-green-700">
                                         {stats?.averageTrustScore.toFixed(1) || '0.0'}
                                     </p>
                                 </div>
 
-                                <div className="bg-purple-50 rounded-lg p-4">
+                                <div className="bg-purple-50/80 rounded-2xl p-4 border border-purple-100">
                                     <div className="flex items-center gap-2 mb-2">
-                                        <TrendingUp className="w-5 h-5 text-purple-600" />
-                                        <span className="text-sm text-gray-600">Paling Sering</span>
+                                        <div className="p-1.5 bg-purple-100 rounded-lg">
+                                            <TrendingUp className="w-4 h-4 text-purple-600" />
+                                        </div>
+                                        <span className="text-xs font-semibold text-purple-800 uppercase tracking-wide">Top Kategori</span>
                                     </div>
-                                    <p className="text-sm font-semibold text-purple-600">
+                                    <p className="text-sm font-bold text-purple-700 line-clamp-2">
                                         {getMostReportedTypeLabel()}
                                     </p>
                                 </div>
 
-                                <div className="bg-gray-50 p-4 rounded-lg">
-                                    <div className="flex items-center gap-2 text-gray-600 mb-1">
-                                        <Calendar className="w-4 h-4" />
-                                        <span className="text-sm font-medium">Usia Akun</span>
+                                <div className="bg-orange-50/80 p-4 rounded-2xl border border-orange-100">
+                                    <div className="flex items-center gap-2 text-orange-800 mb-2">
+                                        <div className="p-1.5 bg-orange-100 rounded-lg">
+                                            <Calendar className="w-4 h-4 text-orange-600" />
+                                        </div>
+                                        <span className="text-xs font-semibold uppercase tracking-wide">Usia Akun</span>
                                     </div>
-                                    <div className="text-2xl font-bold text-gray-900">
+                                    <div className="text-3xl font-bold text-orange-700">
                                         {Math.floor((Date.now() - new Date(user?.created_at || Date.now()).getTime()) / (1000 * 60 * 60 * 24))}
-                                        <span className="text-sm font-normal text-gray-500 ml-1">hari</span>
+                                        <span className="text-sm font-medium ml-1">hari</span>
                                     </div>
                                 </div>
                             </div>
 
                             {/* Info */}
-                            <div className="bg-gray-50 rounded-lg p-4">
-                                <p className="text-sm text-gray-600">
-                                    <strong>Catatan:</strong> Anda dapat mengedit laporan dalam 15 menit pertama setelah dibuat.
+                            <div className="bg-gray-50 border border-gray-100 rounded-xl p-4">
+                                <p className="text-sm text-gray-500 leading-relaxed">
+                                    <strong className="text-gray-700">Catatan:</strong> Anda dapat mengedit laporan dalam 15 menit pertama setelah dibuat.
                                 </p>
                             </div>
 
                             {/* Action Buttons */}
-                            <div className="space-y-3">
+                            <div className="space-y-3 pt-2">
                                 {/* My Reports Button */}
                                 <button
                                     onClick={() => setShowMyReports(true)}
-                                    className="w-full px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium flex items-center justify-center gap-2"
+                                    className="w-full px-6 py-4 bg-brand-600 text-white rounded-xl hover:bg-brand-700 active:bg-brand-800 transition-all font-semibold flex items-center justify-center gap-3 shadow-lg shadow-brand-200 hover:shadow-brand-300 transform active:scale-[0.98]"
                                 >
                                     <FileText className="w-5 h-5" />
                                     Lihat Laporan Saya ({userReports.filter(r => !r.deleted_at).length})
@@ -196,7 +204,7 @@ export function UserProfile({ isOpen, onClose, allReports }: UserProfileProps) {
                                 {/* Voting History Button */}
                                 <button
                                     onClick={() => setShowVotingHistory(true)}
-                                    className="w-full px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors font-medium flex items-center justify-center gap-2"
+                                    className="w-full px-6 py-4 bg-purple-600 text-white rounded-xl hover:bg-purple-700 active:bg-purple-800 transition-all font-semibold flex items-center justify-center gap-3 shadow-lg shadow-purple-200 hover:shadow-purple-300 transform active:scale-[0.98]"
                                 >
                                     <ThumbsUp className="w-5 h-5" />
                                     Riwayat Voting ({userVotes.length})

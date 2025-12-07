@@ -137,10 +137,10 @@ export function ReportModal({ isOpen, onClose, onSubmit, userLocation }: ReportM
   const isNearLimit = charCount > maxChars * 0.8;
 
   return (
-    <div className="fixed inset-0 z-[1000] flex items-end sm:items-center justify-center bg-black bg-opacity-50">
-      <div className="bg-white w-full sm:max-w-md sm:rounded-lg rounded-t-2xl shadow-xl max-h-[80vh] overflow-y-auto">
-        <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between rounded-t-2xl">
-          <h2 className="text-xl font-semibold text-gray-900">Laporkan Bahaya</h2>
+    <div className="fixed inset-0 z-[1000] flex items-end sm:items-center justify-center bg-black/60 backdrop-blur-sm transition-all duration-300">
+      <div className="bg-white w-full sm:max-w-md sm:rounded-2xl rounded-t-3xl shadow-2xl max-h-[80vh] overflow-y-auto transform transition-all">
+        <div className="sticky top-0 bg-white border-b border-gray-100 px-6 py-4 flex items-center justify-between z-10">
+          <h2 className="text-xl font-bold text-gray-900">Laporkan Bahaya</h2>
           <button
             onClick={onClose}
             className="p-2 hover:bg-gray-100 rounded-full transition-colors"
@@ -151,21 +151,23 @@ export function ReportModal({ isOpen, onClose, onSubmit, userLocation }: ReportM
         </div>
 
         <form onSubmit={handleSubmit} className="p-6 space-y-5">
-          <div className="bg-gray-50 p-3 rounded-lg text-sm text-gray-600 flex items-center gap-2">
-            <MapPin className="w-4 h-4 text-gray-500" />
-            <p className="font-medium">Lokasi:</p>
-            <p>{userLocation ? `${userLocation.latitude.toFixed(6)}, ${userLocation.longitude.toFixed(6)}` : 'Lokasi tidak tersedia'}</p>
+          <div className="bg-brand-50 p-4 rounded-xl text-sm text-brand-900 flex items-center gap-3 border border-brand-100">
+            <MapPin className="w-5 h-5 text-brand-600 shrink-0" />
+            <div>
+              <p className="font-semibold text-brand-900">Lokasi Terpantau:</p>
+              <p className="text-brand-700 mt-0.5">{userLocation ? `${userLocation.latitude.toFixed(6)}, ${userLocation.longitude.toFixed(6)}` : 'Lokasi tidak tersedia'}</p>
+            </div>
           </div>
 
           <div>
-            <label htmlFor="type" className="block text-sm font-medium text-gray-700 mb-2">
-              Jenis Bahaya *
+            <label htmlFor="type" className="block text-sm font-semibold text-gray-700 mb-2">
+              Jenis Bahaya <span className="text-red-500">*</span>
             </label>
             <select
               id="type"
               value={selectedType || ''}
               onChange={(e) => setSelectedType(e.target.value as ReportType)}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-base"
+              className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-brand-500 focus:border-transparent text-base bg-white transition-all"
               required
             >
               <option value="" disabled>Pilih jenis bahaya</option>
@@ -178,67 +180,67 @@ export function ReportModal({ isOpen, onClose, onSubmit, userLocation }: ReportM
           </div>
 
           <div>
-            <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-2">
+            <label htmlFor="description" className="block text-sm font-semibold text-gray-700 mb-2">
               Deskripsi (Opsional)
             </label>
             <textarea
               id="description"
               value={description}
               onChange={handleDescriptionChange}
-              placeholder="Tambahkan detail tentang bahaya ini..."
+              placeholder="Jelaskan detail bahaya yang Anda temui..."
               rows={4}
-              className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-base resize-none ${descriptionError ? 'border-red-500' : 'border-gray-300'
+              className={`w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-brand-500 focus:border-transparent text-base resize-none transition-all ${descriptionError ? 'border-red-500 focus:ring-red-500' : 'border-gray-300'
                 }`}
               maxLength={maxChars}
             />
-            <div className="mt-1 flex justify-between items-center">
+            <div className="mt-2 flex justify-between items-center px-1">
               {descriptionError ? (
-                <p className="text-sm text-red-600 flex items-center gap-1"><AlertTriangle className="w-4 h-4" />{descriptionError}</p>
+                <p className="text-sm text-red-600 flex items-center gap-1.5 font-medium"><AlertTriangle className="w-4 h-4" />{descriptionError}</p>
               ) : (
                 <span className="text-sm text-gray-500">Maksimal {maxChars} karakter</span>
               )}
-              <span className={`text-sm ${isNearLimit ? 'text-orange-600 font-medium' : 'text-gray-400'}`}>
+              <span className={`text-sm ${isNearLimit ? 'text-orange-600 font-bold' : 'text-gray-400'}`}>
                 {charCount}/{maxChars}
               </span>
             </div>
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-semibold text-gray-700 mb-2">
               Foto Bukti (Opsional)
             </label>
 
             {!previewUrl ? (
-              <div className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-lg hover:border-blue-500 transition-colors cursor-pointer relative"
+              <div className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-200 border-dashed rounded-xl hover:border-brand-500 hover:bg-brand-50/50 transition-all cursor-pointer relative group"
                 onClick={() => document.getElementById('image-upload')?.click()}>
                 <div className="space-y-1 text-center">
                   {isCompressing ? (
-                    <Loader2 className="mx-auto h-12 w-12 text-gray-400 animate-spin" />
+                    <Loader2 className="mx-auto h-12 w-12 text-brand-400 animate-spin" />
                   ) : (
-                    <Camera className="mx-auto h-12 w-12 text-gray-400" />
+                    <Camera className="mx-auto h-12 w-12 text-gray-400 group-hover:text-brand-500 transition-colors" />
                   )}
                   <div className="flex text-sm text-gray-600 justify-center">
-                    <label htmlFor="image-upload" className="relative cursor-pointer bg-white rounded-md font-medium text-blue-600 hover:text-blue-500 focus-within:outline-none">
+                    <label htmlFor="image-upload" className="relative cursor-pointer rounded-md font-semibold text-brand-600 hover:text-brand-500 focus-within:outline-none">
                       <span>Ambil Foto</span>
                       <input id="image-upload" name="image-upload" type="file" className="sr-only" accept="image/*" onChange={handleImageSelect} disabled={isCompressing} />
                     </label>
-                    <p className="pl-1">atau unggah</p>
+                    <p className="pl-1">atau pilih dari galeri</p>
                   </div>
-                  <p className="text-xs text-gray-500">PNG, JPG, GIF up to 10MB</p>
+                  <p className="text-xs text-gray-400">Maksimal 10MB</p>
                 </div>
               </div>
             ) : (
-              <div className="relative mt-2 rounded-lg overflow-hidden border border-gray-300 bg-gray-50">
-                <img src={previewUrl} alt="Preview" className="w-full h-48 object-contain" />
+              <div className="relative mt-2 rounded-xl overflow-hidden border border-gray-200 bg-gray-50">
+                <img src={previewUrl} alt="Preview" className="w-full h-48 object-contain bg-black/5" />
                 <button
                   type="button"
                   onClick={handleRemoveImage}
-                  className="absolute top-2 right-2 p-1.5 bg-red-600 text-white rounded-full hover:bg-red-700 transition-colors shadow-sm"
+                  className="absolute top-2 right-2 p-2 bg-white/90 text-red-500 rounded-full hover:bg-white hover:text-red-600 transition-colors shadow-sm"
                   aria-label="Hapus foto"
                 >
                   <Trash2 className="w-4 h-4" />
                 </button>
-                <div className="absolute bottom-2 right-2 px-2 py-1 bg-black bg-opacity-60 rounded text-xs text-white flex items-center gap-1">
+                <div className="absolute bottom-2 right-2 px-2.5 py-1 bg-black/70 backdrop-blur-sm rounded-lg text-xs text-white flex items-center gap-1.5 font-medium">
                   <ImageIcon className="w-3 h-3" />
                   <span>{(selectedImage!.size / 1024).toFixed(1)} KB</span>
                 </div>
@@ -246,11 +248,11 @@ export function ReportModal({ isOpen, onClose, onSubmit, userLocation }: ReportM
             )}
           </div>
 
-          <div className="flex gap-3 pt-2">
+          <div className="flex gap-3 pt-4">
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-medium"
+              className="flex-1 px-6 py-3.5 border border-gray-200 text-gray-700 rounded-xl hover:bg-gray-50 hover:border-gray-300 transition-all font-semibold"
               disabled={isSubmitting}
               aria-label="Batal membuat laporan"
             >
@@ -259,7 +261,7 @@ export function ReportModal({ isOpen, onClose, onSubmit, userLocation }: ReportM
             <button
               type="submit"
               disabled={isSubmitting || !!descriptionError || !selectedType || !userLocation}
-              className="flex-1 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+              className="flex-1 px-6 py-3.5 bg-brand-600 text-white rounded-xl hover:bg-brand-700 active:bg-brand-800 transition-all font-semibold disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-lg shadow-brand-200"
               aria-label="Kirim laporan bahaya"
             >
               {isSubmitting ? (
